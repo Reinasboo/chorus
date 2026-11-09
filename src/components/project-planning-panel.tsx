@@ -127,7 +127,11 @@ export function ProjectPlanningPanel({
       )}
       {!isActive && <p className="muted">Planning is disabled for inactive projects.</p>}
 
-      {message && <p className="inline-message" role="status">{message}</p>}
+      {message && (
+        <p className="inline-message" role="status" aria-live="polite" aria-atomic="true">
+          {message}
+        </p>
+      )}
       {plan && (
         <div className="plan-proposal" aria-live="polite">
           <p>{plan.summary}</p>

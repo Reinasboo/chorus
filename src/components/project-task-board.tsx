@@ -165,7 +165,11 @@ export function ProjectTaskBoard({
         </form>
       )}
 
-      {message && <p className="inline-message" role="status">{message}</p>}
+      {message && (
+        <p className="inline-message" role="status" aria-live="polite" aria-atomic="true">
+          {message}
+        </p>
+      )}
 
       {tasks.length ? (
         <ul className="project-task-list">

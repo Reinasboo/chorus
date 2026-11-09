@@ -1,9 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AccountControls } from "@/components/account-controls";
 import { ChorusMark } from "@/components/chorus-mark";
+
+const MOBILE_NAV_QUERY = "(max-width: 900px)";
+
+function subscribeToViewportChange(onChange: () => void) {
+  const mediaQuery = window.matchMedia(MOBILE_NAV_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+}
+
+function getIsMobileViewport() {
+  return window.matchMedia(MOBILE_NAV_QUERY).matches;
+}
 
 type AppSidebarProps = {
   userName: string;
@@ -49,6 +61,14 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobileViewport = useSyncExternalStore(
+    subscribeToViewportChange,
+    getIsMobileViewport,
+    () => false,
+  );
+  const sidebarRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const wasMobileOpen = useRef(false);
   const overviewHref = "/overview";
   const projectsHref = "/overview#projects";
   const treasuryHref = projectId
@@ -65,11 +85,33 @@ export function AppSidebar({
     : "/activity";
   const closeMobile = () => setMobileOpen(false);
 
+  useEffect(() => {
+    if (mobileOpen && isMobileViewport) {
+      sidebarRef.current?.querySelector<HTMLElement>("a, button")?.focus();
+    } else if (wasMobileOpen.current && isMobileViewport) {
+      toggleRef.current?.focus();
+    }
+    wasMobileOpen.current = mobileOpen;
+  }, [isMobileViewport, mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen || !isMobileViewport) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileOpen(false);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileViewport, mobileOpen]);
+
   return (
     <>
       <button
         className="mobile-menu-toggle"
         type="button"
+        ref={toggleRef}
+        aria-controls="workspace-sidebar"
         aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
         aria-expanded={mobileOpen}
         onClick={() => setMobileOpen((open) => !open)}
@@ -85,8 +127,12 @@ export function AppSidebar({
         />
       )}
       <aside
+        ref={sidebarRef}
+        id="workspace-sidebar"
         className={`sidebar${collapsed ? " is-collapsed" : ""}${mobileOpen ? " is-mobile-open" : ""}`}
         aria-label="Workspace navigation"
+        aria-hidden={isMobileViewport && !mobileOpen}
+        inert={isMobileViewport && !mobileOpen}
       >
         <div className="sidebar-brand-row">
           <Link className="brand-lockup" href={overviewHref} onClick={closeMobile}>
