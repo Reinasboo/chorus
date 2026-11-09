@@ -13,6 +13,7 @@ import { canManageProject } from "@/lib/project-access";
 import { createProjectTaskSchema } from "@/lib/project-task-input";
 import { getProjectRole, getProjectTasks } from "@/lib/project-queries";
 import { readJsonBody } from "@/lib/request-json";
+import { parseUsdToMinorUnits } from "@/lib/money";
 
 type RouteContext = { params: Promise<{ projectId: string }> };
 
@@ -58,6 +59,9 @@ export async function POST(request: Request, { params }: RouteContext) {
 
   const now = new Date();
   const taskId = randomUUID();
+  const estimatedCostMinor = parsed.data.estimatedCost
+    ? parseUsdToMinorUnits(parsed.data.estimatedCost)
+    : null;
   const result = db.transaction((transaction) => {
     const [membership] = transaction
       .select({ role: projectMember.role, status: project.status })
@@ -85,6 +89,8 @@ export async function POST(request: Request, { params }: RouteContext) {
         projectId,
         title: parsed.data.title,
         description: parsed.data.description,
+        category: parsed.data.category ?? null,
+        estimatedCostMinor,
         status: "todo",
         reportedOutcome: null,
         createdBy: session.user.id,
@@ -102,7 +108,11 @@ export async function POST(request: Request, { params }: RouteContext) {
         action: "task.created",
         entityType: "task",
         entityId: taskId,
-        details: JSON.stringify({ title: parsed.data.title }),
+        details: JSON.stringify({
+          title: parsed.data.title,
+          category: parsed.data.category ?? null,
+          estimatedCostMinor,
+        }),
         createdAt: now,
       })
       .run();
@@ -121,6 +131,8 @@ export async function POST(request: Request, { params }: RouteContext) {
       id: taskId,
       title: parsed.data.title,
       description: parsed.data.description,
+      category: parsed.data.category ?? null,
+      estimatedCostMinor,
       status: "todo",
       reportedOutcome: null,
       createdByName: session.user.name,

@@ -311,6 +311,8 @@ export async function getProjectTasks(projectId: string) {
       id: projectTask.id,
       title: projectTask.title,
       description: projectTask.description,
+      category: projectTask.category,
+      estimatedCostMinor: projectTask.estimatedCostMinor,
       status: projectTask.status,
       reportedOutcome: projectTask.reportedOutcome,
       createdByName: user.name,

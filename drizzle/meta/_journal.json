@@ -36,6 +36,13 @@
       "when": 1794236115850,
       "tag": "0004_past_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794238413568,
+      "tag": "0005_slow_fenris",
+      "breakpoints": true
     }
   ]
 }

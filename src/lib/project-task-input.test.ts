@@ -23,6 +23,37 @@ describe("project task input", () => {
     ).toBe(false);
   });
 
+  it("accepts optional planning category and positive USD estimate", () => {
+    expect(
+      createProjectTaskSchema.parse({
+        title: "  Design assets  ",
+        description: " Create reusable campaign graphics. ",
+        category: " design ",
+        estimatedCost: "20.00",
+      }),
+    ).toEqual({
+      title: "Design assets",
+      description: "Create reusable campaign graphics.",
+      category: "design",
+      estimatedCost: "20.00",
+    });
+    expect(
+      createProjectTaskSchema.safeParse({
+        title: "Design assets",
+        description: "Create reusable campaign graphics.",
+        category: "x",
+        estimatedCost: "0",
+      }).success,
+    ).toBe(false);
+    expect(
+      createProjectTaskSchema.safeParse({
+        title: "Design assets",
+        description: "Create reusable campaign graphics.",
+        estimatedCost: "20.001",
+      }).success,
+    ).toBe(false);
+  });
+
   it("requires a reported outcome to mark work completed", () => {
     expect(
       updateProjectTaskSchema.safeParse({

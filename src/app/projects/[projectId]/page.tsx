@@ -6,10 +6,12 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 import { ProjectSectionNav } from "@/components/project-section-nav";
 import { ProjectTaskBoard } from "@/components/project-task-board";
+import { ProjectPlanningPanel } from "@/components/project-planning-panel";
 import { ProjectEditForm } from "@/components/project-edit-form";
 import { ContributionPanel } from "@/components/contribution-panel";
 import { SpendingControls } from "@/components/spending-controls";
 import { getCurrentSession } from "@/lib/auth-session";
+import { isNearAiPlannerConfigured } from "@/lib/near-ai-planner";
 import { canManageProject } from "@/lib/project-access";
 import { formatUsdFromMinorUnits } from "@/lib/money";
 import { usdInputFromMinorUnits } from "@/lib/money";
@@ -50,6 +52,9 @@ async function ProjectContent({ params }: PageProps) {
         ? BigInt(10_000)
         : progressBasisPoints,
     ) / 100;
+  const outstandingTaskCount = tasks.filter(
+    (task) => task.status !== "completed",
+  ).length;
   const invitations = canManageProject(project.role)
     ? await listProjectInvitations(project.id)
     : [];
@@ -96,6 +101,7 @@ async function ProjectContent({ params }: PageProps) {
                 )}
               </section>
               <ProjectTaskBoard
+                key={tasks.map((task) => `${task.id}:${task.updatedAt}`).join("|")}
                 projectId={project.id}
                 initialTasks={tasks}
                 canManage={canManageProject(project.role)}
@@ -110,15 +116,12 @@ async function ProjectContent({ params }: PageProps) {
                 projectId={project.id}
                 canManage={canManageProject(project.role)}
               />
-              <section className="detail-card" id="intelligence">
-                <p className="eyebrow">AI PLANNING</p>
-                <h2>Plan generation unavailable</h2>
-                <p>
-                  No server-side AI provider is configured. Add a provider only
-                  after its data handling and output format are reviewed; model
-                  output will be validated and cannot authorize spending.
-                </p>
-              </section>
+              <ProjectPlanningPanel
+                projectId={project.id}
+                canManage={canManageProject(project.role)}
+                isActive={project.status === "active"}
+                isConfigured={isNearAiPlannerConfigured()}
+              />
               <section className="detail-card" id="activity">
                 <div className="detail-card-heading"><p className="eyebrow">THE PAPER TRAIL</p><span className="section-count">{project.events.length} {project.events.length === 1 ? "event" : "events"}</span></div>
                 <h2>Project activity</h2>
@@ -166,7 +169,41 @@ async function ProjectContent({ params }: PageProps) {
                     <b>{formatUsdFromMinorUnits(project.targetAmountMinor)}</b>
                   </span>
                 </div>
-                <p>Payment execution and spending remain disabled.</p>
+                <div className="budget-position" aria-label="Budget position">
+                  <div className="financial-row">
+                    <span>Available · verified, unreserved</span>
+                    <strong>
+                      {formatUsdFromMinorUnits(
+                        contributionLedger.summary.unreservedVerifiedAmountMinor,
+                      )}
+                    </strong>
+                  </div>
+                  <div className="financial-row">
+                    <span>Committed · active approvals</span>
+                    <strong>
+                      {formatUsdFromMinorUnits(
+                        contributionLedger.summary.reservedAmountMinor,
+                      )}
+                    </strong>
+                  </div>
+                  <div className="financial-row">
+                    <span>Verified spending</span>
+                    <strong className="value-unavailable">Unavailable</strong>
+                  </div>
+                  <div className="financial-row">
+                    <span>Remaining after spending</span>
+                    <strong className="value-unavailable">Unavailable</strong>
+                  </div>
+                  <div className="financial-row">
+                    <span>Outstanding tasks</span>
+                    <strong>{outstandingTaskCount}</strong>
+                  </div>
+                </div>
+                <p>
+                  Spending and payment evidence are unavailable because no
+                  payment execution or settlement verifier is configured.
+                  Approvals reserve funds but do not spend them.
+                </p>
               </section>
               <section className="detail-card members-card" id="members">
                 <div className="detail-card-heading"><p className="eyebrow">YOUR PEOPLE</p><span className="section-count">{project.members.length}</span></div>

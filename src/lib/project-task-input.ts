@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseUsdToMinorUnits } from "./money";
 
 export const projectTaskStatuses = [
   "todo",
@@ -10,6 +11,14 @@ export const projectTaskStatuses = [
 export const createProjectTaskSchema = z.object({
   title: z.string().trim().min(2).max(120),
   description: z.string().trim().min(10).max(2000),
+  category: z.string().trim().min(2).max(80).optional(),
+  estimatedCost: z
+    .string()
+    .trim()
+    .refine((value) => parseUsdToMinorUnits(value) !== null, {
+      message: "Estimated cost must be a positive USD amount.",
+    })
+    .optional(),
 });
 
 export const updateProjectTaskSchema = z

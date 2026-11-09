@@ -186,7 +186,7 @@ Define database constraints and authorization checks for ownership, membership, 
 
 ### Phase 4 — Intelligence, provider discovery, policy, approvals
 
-- [ ] Configure an AI provider (prefer NEAR AI Cloud where access and requirements permit); no provider credentials are configured.
+- [ ] Configure an AI provider (prefer NEAR AI Cloud where access and requirements permit); the server-side NEAR AI Cloud adapter and optional plan-generation flow are implemented, but no provider credentials are configured.
 - [x] Define the planner interface and validate untrusted structured plan output, task estimates, and project-budget totals. Actual plan generation remains unavailable.
 - [ ] Discover only configured/compatible service endpoints for MVP; validate provider identity, price, accepted payment method/assets, and service terms before presenting an offer.
 - [ ] Present a verified provider offer or AI-generated execution plan; current provider and offer IDs are administrator-entered references, explicitly not verified.
@@ -195,7 +195,7 @@ Define database constraints and authorization checks for ownership, membership, 
 - [x] Capture exact task, provider/offer reference, amount, purpose, policy version, approver, and expiry; material policy updates invalidate existing approvals.
 - [x] Re-authorize exact scope, current policy, verified contributions, and concurrent reservations before recording approval. Payment-boundary re-authorization, replay protection, and execution remain disabled with payments.
 
-**Current status:** Policy and approval APIs/UI are implemented with server-side checks; approval records never execute payment. The AI output validator is ready, but model calls/provider discovery are not configured. Admin-entered provider references are not offers or proof of service.
+**Current status:** Policy and approval APIs/UI are implemented with server-side checks; approval records never execute payment. Administrators can request a structured draft from NEAR AI Cloud when credentials are configured. The objective and budget are sent to the chosen model; output is validated against the project budget and must be reviewed before tasks are added. No credentials/model are configured by default, proposals are not quotes or spending authorization, and provider discovery remains unavailable. Admin-entered provider references are not offers or proof of service.
 
 **Exit check:** Objective produces reviewable structured tasks; provider/price and plan are visible; unauthorized, expired, revoked, over-cap, disallowed, and changed-scope executions are blocked server-side and covered by tests.
 
@@ -217,7 +217,7 @@ Define database constraints and authorization checks for ownership, membership, 
 ### Phase 6 — Outcomes, reporting, polish, and demo
 
 - [x] Implement manually managed task statuses and reported outcome records; agent deliverables and a verified project completion summary remain blocked on an execution/verifier lifecycle.
-- [ ] Present target, verified contributions, available/committed/spent amounts, outstanding tasks, payment evidence, and remaining amount with clear definitions.
+- [x] Present target, verified contributions, available/committed amounts, outstanding tasks, and explicit unavailable states for spend, payment evidence, and post-spend remaining amount until a payment/verifier lifecycle exists.
 - [ ] Provide accessible responsive layouts, loading/empty/error states, understandable payment status, and non-technical copy.
 - [x] Implement the Red Noir public landing page and responsive authenticated overview/project shells, including truthful treasury status, approval-queue routing, empty states, and mobile navigation.
 - [x] Add project-section navigation, actual task-availability disclosure, all/created/shared project filtering, and authenticated account/integration settings.
@@ -227,10 +227,11 @@ Define database constraints and authorization checks for ownership, membership, 
 - [x] Write a reproducible walkthrough for the supported no-payment prototype, including setup, roles, contribution reporting, and policy gates.
 - [x] Prepare local setup documentation, architecture/decision notes, and known limitations.
 - [ ] Add real test assets/provider endpoint and recovery steps only after a supported test route is validated.
-- [ ] Prepare public repository/submission materials and a short demonstration video outline.
+- [x] Publish the project repository with setup and integration limitations documented.
+- [ ] Prepare remaining submission materials and a short demonstration video outline.
 - [ ] Confirm hackathon submission requirements from the official current source: public repository and public X demo post linked in submission; deadline stated in the vision is November 14, 2026 at 23:59 UTC.
 
-**Current status:** The no-payment prototype walkthrough and setup limitations are documented. The Red Noir landing page, responsive workspace/project shell, searchable and filterable project directory, treasury/approval snapshots, project-section navigation, authenticated settings, membership-scoped activity ledger, and manual project task tracking are implemented with truthful integration availability states. Task outcomes are member-reported, not verified deliverables. Reserved and unreserved verified balances are reported, but expenditure and verified project completion summaries depend on a validated payment/deliverable lifecycle. A real payment demo, public repository, and submission artifacts remain unavailable.
+**Current status:** The no-payment prototype walkthrough and setup limitations are documented, and the repository is public. The Red Noir landing page, responsive workspace/project shell, searchable and filterable project directory, treasury/approval snapshots, project-section navigation, authenticated settings, membership-scoped activity ledger, manual task tracking, and optional AI planning are implemented with truthful integration availability states. AI task categories and estimates are preserved as draft metadata when added to a project; estimates are not quotes. Task outcomes are member-reported, not verified deliverables. Verified available and reserved balances plus outstanding tasks are shown; expenditure, payment evidence, and post-spend remaining amounts are explicitly unavailable until a validated payment/deliverable lifecycle exists. A real payment demo and remaining submission materials are unavailable.
 
 **Exit check:** A fresh reviewer can run the app, complete or reproduce the documented demo, understand which actions are real vs test fixtures, and inspect evidence linking approval, payment, verification, and deliverable.
 

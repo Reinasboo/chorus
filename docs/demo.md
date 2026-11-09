@@ -31,6 +31,16 @@ Invitation links are one-use and expire; the project activity list records their
 
 Tasks are manually managed. They do not dispatch agents, call providers, or authorize payments.
 
+## Optional AI draft planning
+
+Planning is disabled unless a server-side provider is configured. To enable the optional NEAR AI Cloud adapter, add `NEAR_AI_API_KEY` and `NEAR_AI_MODEL` to `.env.local` using credentials and a model available to your account, then restart the app. Review the selected model's data-handling tier and any usage charges before sending a project objective and budget.
+
+1. As an owner or administrator, select **Generate draft plan** in the AI Planning section.
+2. Review the suggested tasks and estimated USD costs; reject any unsuitable suggestion.
+3. Add an accepted suggestion to the project task list. Its category and estimate are retained as draft metadata.
+
+Generated plans and estimates are not provider offers, quotes, approvals, or authorization to spend. Do not configure credentials for a live demo unless you explicitly accept the data-sharing and usage-cost implications.
+
 ## Demonstrate the contribution ledger
 
 1. As a project member, enter an amount in **Contribution ledger** and submit it.
@@ -59,5 +69,5 @@ npm run build
 
 - No live or testnet payment is available for the selected NEAR Intents route.
 - No wallet signing, custody, provider discovery, or independently verified settlement is configured.
-- No AI provider is configured; only structured model-output validation is implemented.
+- No AI provider is configured by default. AI draft planning is optional and requires a separately configured NEAR AI Cloud API key and model.
 - No contribution, approval, or local database entry should be presented as evidence of transferred funds.

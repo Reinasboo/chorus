@@ -8,6 +8,7 @@ Product direction and implementation progress:
 - [Codex build plan](./docs/codex-build-plan.md)
 - [NEAR Intents / MPP architecture decision](./docs/adr/0001-near-intents-mpp.md)
 - [Planning and spending controls decision](./docs/adr/0003-planning-and-spending-controls.md)
+- [Optional NEAR AI planning decision](./docs/adr/0004-near-ai-planning.md)
 - [Local demo walkthrough](./docs/demo.md)
 
 ## Current status
@@ -48,15 +49,23 @@ npm test
 npm run build
 ```
 
-Add provider credentials only when a later implementation phase requires them. Keep secrets server-side and never commit `.env.local` or wallet keys.
+AI planning is optional. To enable it, set `NEAR_AI_API_KEY` and `NEAR_AI_MODEL`
+in `.env.local` using a NEAR AI Cloud API key and a model available to your
+account. The project objective and target budget are sent to the configured
+model when an administrator requests a plan; review the model's data-handling
+tier and your account's usage costs first. The server validates returned
+structure and budget, but estimates are not quotes or spending authorization.
+Keep credentials server-side and never commit `.env.local` or wallet keys.
+See the [AI planning decision](./docs/adr/0004-near-ai-planning.md) for the
+integration boundary and privacy limitations.
 
 ## Integration status
 
 - NEAR Intents / MPP: researched; see the ADR. Live settlement is gated on implementation, credentials, wallet authorization, and explicit human confirmation.
 - Database and authentication: Better Auth + local SQLite are implemented for the prototype; production email verification and PostgreSQL migration remain outstanding.
 - Contributions: members can record self-reported USD amounts. Reports are shown separately from pending and independently verified settlements; payments remain disabled.
-- AI: structured output validation exists, but no model provider or provider discovery is configured.
-- Tasks: project administrators can create tasks and project members can update status and add reported outcomes; no task invokes an agent or service provider.
+- AI: the NEAR AI Cloud chat-completions adapter and reviewable plan flow are implemented; no API key or model is configured by default. Provider discovery remains unavailable.
+- Tasks: project administrators can create tasks and project members can update status and add reported outcomes; optional AI task categories and draft estimates are retained when accepted. No task invokes an agent or service provider, and estimates are not quotes.
 
 ## Product direction
 

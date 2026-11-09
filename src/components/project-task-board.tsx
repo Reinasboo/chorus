@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { formatUsdFromMinorUnits } from "@/lib/money";
 
 type ProjectTask = {
   id: string;
   title: string;
   description: string;
+  category: string | null;
+  estimatedCostMinor: string | null;
   status: string;
   reportedOutcome: string | null;
   createdByName: string;
@@ -200,7 +203,12 @@ function TaskCard({
     <li className="project-task-card">
       <div className="project-task-heading">
         <span className={`task-status task-status-${status}`}>{taskStatuses.find((item) => item.value === status)?.label ?? status}</span>
-        <small>Added by {task.createdByName}</small>
+        <small>
+          {task.category && `${task.category} · `}
+          {task.estimatedCostMinor !== null &&
+            `Draft estimate ${formatUsdFromMinorUnits(task.estimatedCostMinor)} · `}
+          Added by {task.createdByName}
+        </small>
       </div>
       <h3>{task.title}</h3>
       <p>{task.description}</p>

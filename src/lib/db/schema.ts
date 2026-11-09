@@ -347,6 +347,8 @@ export const projectTask = sqliteTable(
       .references(() => project.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    category: text("category"),
+    estimatedCostMinor: text("estimatedCostMinor"),
     status: text("status").notNull().default("todo"),
     reportedOutcome: text("reportedOutcome"),
     createdBy: text("createdBy")
