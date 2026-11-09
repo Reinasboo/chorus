@@ -76,7 +76,7 @@ async function SettingsContent() {
               <li><span><b>Payment provider</b><small>Payment execution and settlement checks are unavailable</small></span><em>NOT CONFIGURED</em></li>
             </ul>
           </section>
-          <p className="settings-footer">Chorus does not store wallet credentials or execute payments in this prototype.</p>
+          <p className="settings-footer">Chorus does not store wallet credentials or execute agent purchases. NEAR project funding requires each contributor to confirm a mainnet transaction in their wallet.</p>
         </div>
       </section>
     </main>

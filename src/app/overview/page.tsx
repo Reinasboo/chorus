@@ -146,7 +146,7 @@ async function OverviewContent() {
             </aside>
           </div>
 
-          <footer className="app-footer">Chorus coordinates shared goals. Wallets and payments are not connected in this prototype.</footer>
+          <footer className="app-footer">NEAR project funding is mainnet-only and wallet-confirmed. Agent purchases are not enabled.</footer>
         </div>
       </section>
     </main>

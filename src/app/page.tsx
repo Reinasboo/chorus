@@ -10,7 +10,7 @@ const features = [
   },
   {
     title: "Accountable by design",
-    text: "Separate self-reported contributions from independently verified settlement.",
+    text: "Separate self-reported contributions from quote-bound, provider-reported funding status.",
     mark: "◉",
     className: "",
   },
@@ -60,7 +60,7 @@ export default function LandingPage() {
             <Link className="button button-primary" href="/sign-in">Create a project <span aria-hidden="true">↗</span></Link>
             <a className="button button-quiet" href="#how-it-works">See how Chorus works</a>
           </div>
-          <div className="hero-footnote"><span className="status-dot" /> No live payments are enabled</div>
+          <div className="hero-footnote"><span className="status-dot" /> NEAR funding · wallet-confirmed · mainnet only</div>
         </div>
 
         <div className="hero-preview" aria-label="Illustrative preview of a Chorus project workspace">
@@ -146,12 +146,12 @@ export default function LandingPage() {
         <div className="technology-copy">
           <span className="section-kicker">Built with open eyes</span>
           <h2>Infrastructure should earn trust.</h2>
-          <p>Chorus is exploring NEAR infrastructure for future payments. The current prototype does not connect a wallet, transfer assets, or verify chain settlement.</p>
+          <p>Chorus supports a wallet-confirmed NEAR Intents funding flow for projects. It is mainnet-only, has not been end-to-end tested, and relies on quote-bound 1Click status rather than independent on-chain reconciliation. Agent service purchases are not implemented.</p>
           <Link className="text-link" href="/sign-in">Explore the prototype <span aria-hidden="true">→</span></Link>
         </div>
         <div className="technology-list">
           <div><span className="tech-mark">N</span><span><b>NEAR Protocol</b><small>Settlement design not validated</small></span><em>Not connected</em></div>
-          <div><span className="tech-mark">↔</span><span><b>NEAR Intents</b><small>No supported route configured</small></span><em>Not connected</em></div>
+          <div><span className="tech-mark">↔</span><span><b>NEAR Intents</b><small>wNEAR → USDC project funding · mainnet only</small></span><em>Prototype</em></div>
           <div><span className="tech-mark">M</span><span><b>Machine Payments Protocol</b><small>No service payment flow configured</small></span><em>Not connected</em></div>
           <div><span className="tech-mark">✳</span><span><b>NEAR AI Cloud</b><small>Optional; no model configured</small></span><em>Optional</em></div>
         </div>
@@ -168,7 +168,7 @@ export default function LandingPage() {
       <footer className="landing-footer">
         <Link className="brand-lockup" href="/"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span><span className="brand-wordmark">CHORUS</span></Link>
         <span>Many people. One purpose. Intelligent execution.</span>
-        <span className="footer-prototype"><i /> Prototype · no live payments</span>
+        <span className="footer-prototype"><i /> Prototype · mainnet funding not end-to-end tested</span>
       </footer>
     </main>
   );

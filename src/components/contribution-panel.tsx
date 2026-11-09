@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatUsdFromMinorUnits } from "@/lib/money";
+import { NearIntentsFunding } from "@/components/near-intents-funding";
 
 type ContributionItem = {
   id: string;
@@ -11,6 +12,7 @@ type ContributionItem = {
   currency: string;
   source: string;
   status: string;
+  nearIntentStatus: string | null;
   note: string | null;
   verifiedAt: string | null;
   createdAt: string;
@@ -25,20 +27,44 @@ type ContributionSummary = {
   activeReservationCount: number;
 };
 
-function statusLabel(status: string) {
+function statusLabel(status: string, nearIntentStatus: string | null) {
+  if (nearIntentStatus === "SUCCESS") {
+    return "1Click reports success · chain check pending";
+  }
+  if (nearIntentStatus === "REFUNDED") {
+    return "1Click reports refund · not independently verified";
+  }
+  if (nearIntentStatus === "INCOMPLETE_DEPOSIT") {
+    return "1Click reports incomplete deposit · check refund status";
+  }
+  if (nearIntentStatus === "FAILED") {
+    return "1Click reports payment failure";
+  }
+  if (nearIntentStatus === "VERIFICATION_FAILED") {
+    return "1Click status did not match the quote";
+  }
+  if (nearIntentStatus === "EXPIRED") {
+    return "Quote expired";
+  }
+  if (nearIntentStatus === "KNOWN_DEPOSIT_TX") {
+    return "Deposit detected · awaiting settlement";
+  }
+  if (nearIntentStatus === "PROCESSING") {
+    return "1Click is processing the swap";
+  }
   switch (status) {
     case "reported":
       return "Reported · not verified";
     case "pending":
       return "Payment pending";
     case "confirmed":
-      return "Settlement verified";
+      return "Settlement evidence recorded";
     case "failed":
       return "Payment failed";
     case "expired":
       return "Payment expired";
     case "refunded":
-      return "Refund verified";
+      return "Refund evidence recorded";
     default:
       return "Unknown status";
   }
@@ -48,10 +74,14 @@ export function ContributionPanel({
   projectId,
   summary,
   contributions,
+  nearTreasuryAccount,
+  isActive,
 }: {
   projectId: string;
   summary: ContributionSummary;
   contributions: ContributionItem[];
+  nearTreasuryAccount: string | null;
+  isActive: boolean;
 }) {
   const router = useRouter();
   const [amount, setAmount] = useState("");
@@ -111,9 +141,16 @@ export function ContributionPanel({
       </div>
       <h2>Contribution ledger</h2>
       <p className="muted">
-        Reports are unverified and do not transfer funds. Verified amounts only
-        appear after independent settlement evidence is checked.
+        Self-reported entries are not verified funds. NEAR Intents status is
+        quote-bound provider reporting; it is not independent chain
+        reconciliation and does not increase verified totals.
       </p>
+
+      <NearIntentsFunding
+        projectId={projectId}
+        treasuryAccount={nearTreasuryAccount}
+        isActive={isActive}
+      />
 
       <div className="contribution-summary">
         <span>
@@ -121,7 +158,7 @@ export function ContributionPanel({
           <strong>{formatUsdFromMinorUnits(summary.reportedAmountMinor)}</strong>
         </span>
         <span>
-          Pending{" "}
+          Pending · unverified{" "}
           <strong>{formatUsdFromMinorUnits(summary.pendingAmountMinor)}</strong>
         </span>
         <span>
@@ -188,7 +225,7 @@ export function ContributionPanel({
               <span className="contribution-copy">
                 <strong>{item.contributorName}</strong>
                 <small>
-                  {statusLabel(item.status)} ·{" "}
+                  {statusLabel(item.status, item.nearIntentStatus)} ·{" "}
                   {new Date(item.createdAt).toLocaleDateString("en-US", {
                     timeZone: "UTC",
                     month: "short",

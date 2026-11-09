@@ -30,13 +30,15 @@ that a member-reported outcome is independently verified.
 | 0:38–0:50 | Enter a contribution report; show reported and verified totals | “A contribution report is explicitly unverified. It does not transfer funds and does not increase the verified balance.” |
 | 0:50–1:05 | Show policy controls and an approval record or empty approval queue | “Spending policy and approvals are separate safeguards. An approval reserves budget but cannot execute a purchase.” |
 | 1:05–1:17 | Show AI Planning section with the default disabled state, or generate and review a plan if configured | “Optional AI planning can suggest draft tasks. Estimates are not quotes, offers, or spending authorization.” |
-| 1:17–1:30 | Show budget position, activity ledger, and integration status | “Available and reserved amounts are shown separately. Verified spending and settlement evidence remain unavailable until a real payment route and independent verifier are implemented.” |
+| 1:17–1:30 | Show budget position, activity ledger, NEAR treasury settings, and integration status; do not request or sign a quote | “A wallet-confirmed NEAR Intents funding path is implemented for mainnet, but is not end-to-end tested. 1Click status is not independent chain reconciliation, and agent purchases are not enabled.” |
 
 ## Closing disclosure
 
-“This is a no-payment prototype. NEAR Intents settlement, MPP service purchase,
-wallet signing, provider discovery, and independent payment verification are
-not enabled. No real payment or verified expenditure is demonstrated.”
+“This demo does not make a payment. Chorus has a mainnet-only, wallet-confirmed
+NEAR Intents funding path, but it has not been end-to-end tested. 1Click status
+is not independent chain reconciliation; MPP service purchases and agent
+spending are not implemented. No real payment or verified expenditure is
+demonstrated.”
 
 ## Submission checklist
 

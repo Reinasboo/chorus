@@ -6,6 +6,7 @@ import {
   activityEvent,
   contribution,
   invitation,
+  nearIntentPayment,
   project,
   projectMember,
   projectSpendingPolicy,
@@ -25,6 +26,8 @@ export async function listProjectsForUser(userId: string) {
       targetAmountMinor: project.targetAmountMinor,
       currency: project.currency,
       status: project.status,
+      nearTreasuryAccount: project.nearTreasuryAccount,
+      nearTreasuryVerifiedAt: project.nearTreasuryVerifiedAt,
       createdBy: project.createdBy,
       role: projectMember.role,
       createdAt: project.createdAt,
@@ -245,6 +248,8 @@ export async function getProjectForMember(projectId: string, userId: string) {
       targetAmountMinor: project.targetAmountMinor,
       currency: project.currency,
       status: project.status,
+      nearTreasuryAccount: project.nearTreasuryAccount,
+      nearTreasuryVerifiedAt: project.nearTreasuryVerifiedAt,
       createdBy: project.createdBy,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
@@ -368,6 +373,7 @@ export async function getContributionLedger(projectId: string) {
       currency: contribution.currency,
       source: contribution.source,
       status: contribution.status,
+      nearIntentStatus: nearIntentPayment.status,
       note: contribution.note,
       receivedAmountMinor: contribution.receivedAmountMinor,
       refundedAmountMinor: contribution.refundedAmountMinor,
@@ -380,6 +386,10 @@ export async function getContributionLedger(projectId: string) {
     })
     .from(contribution)
     .innerJoin(user, eq(user.id, contribution.contributorId))
+    .leftJoin(
+      nearIntentPayment,
+      eq(nearIntentPayment.contributionId, contribution.id),
+    )
     .where(eq(contribution.projectId, projectId))
     .orderBy(desc(contribution.createdAt)),
     db
@@ -437,6 +447,7 @@ export async function getContributionLedger(projectId: string) {
       currency: record.currency,
       source: record.source,
       status: record.status,
+      nearIntentStatus: record.nearIntentStatus,
       note: record.note,
       verifiedAt: record.verifiedAt?.toISOString() ?? null,
       createdAt: record.createdAt.toISOString(),

@@ -67,7 +67,7 @@ npm run build
 
 ## Not part of this demo
 
-- No live or testnet payment is available for the selected NEAR Intents route.
-- No wallet signing, custody, provider discovery, or independently verified settlement is configured.
+- The project-funding flow supports NEAR mainnet wallet signing, but is not part of this safe demo and has not been end-to-end tested with real assets; NEAR Intents has no testnet.
+- Chorus does not hold wallet keys. Quote-bound 1Click status is not independently reconciled against NEAR RPC; provider discovery and MPP agent purchases are not configured.
 - No AI provider is configured by default. AI draft planning is optional and requires a separately configured NEAR AI Cloud API key and model.
-- No contribution, approval, or local database entry should be presented as evidence of transferred funds.
+- No contribution, approval, or local database entry should be presented as evidence of transferred funds. Do not sign a real transaction during the demo.

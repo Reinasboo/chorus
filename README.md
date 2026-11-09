@@ -14,11 +14,11 @@ Product direction and implementation progress:
 
 ## Current status
 
-Authentication, local project storage, and an idempotent self-reported contribution ledger are implemented. Live payments, wallet signing, and an AI provider are not configured. A reported contribution is not evidence of funds or settlement.
+Authentication, local project storage, and an idempotent contribution ledger are implemented. Project funding has a NEAR mainnet wallet-confirmed flow through NEAR Intents 1Click, but it has not been end-to-end tested with a real transfer. Settlement is currently based on quote-bound 1Click status, not independent on-chain reconciliation. A reported contribution is not evidence of funds or settlement.
 Spending policies and exact-scope human approval records are available, but provider/offer references are administrator-entered and unverified. Approval records do not trigger execution or payment.
 Projects also support manually managed task statuses and reported outcomes. Task outcomes are not independently verified and do not imply agent execution or deliverable acceptance.
 
-The financial architecture must account for the fact that NEAR Intents has no testnet. Any real mainnet payment flow requires explicit user authorization, a confirmed quote and recipient, and an independently verified result. The application must not initiate asset transfers automatically.
+NEAR Intents has no testnet. The funding flow uses a contributor's connected wallet and requires explicit confirmation of the quoted mainnet transaction; Chorus does not hold wallet keys or automatically initiate transfers. Do not treat 1Click status as independently chain-verified settlement. Agent service purchases and MPP execution are not implemented.
 
 ## Requirements
 
@@ -60,11 +60,18 @@ Keep credentials server-side and never commit `.env.local` or wallet keys.
 See the [AI planning decision](./docs/adr/0004-near-ai-planning.md) for the
 integration boundary and privacy limitations.
 
+NEAR treasury verification uses a free NEP-413 signature checked through
+`NEAR_RPC_URL` (defaults to the public FastNear RPC). NEAR Intents quotes can be
+requested without an API key, but configure `NEAR_INTENTS_API_KEY` for the
+partner API terms and fee treatment applicable to your integration. Never use
+this mainnet flow for tests that would submit a real transfer.
+
 ## Integration status
 
-- NEAR Intents / MPP: researched; see the ADR. Live settlement is gated on implementation, credentials, wallet authorization, and explicit human confirmation.
+- NEAR Intents funding: mainnet-only quote/deposit/status flow is implemented for wNEAR-to-USDC project contributions; the contributor explicitly confirms the wallet transaction. It is not end-to-end tested and 1Click status is not independently reconciled against NEAR RPC. See the [ADR](./docs/adr/0001-near-intents-mpp.md).
+- MPP service purchases: not implemented; no provider endpoint, agent payment, or outbound spending flow is configured.
 - Database and authentication: Better Auth + local SQLite are implemented for the prototype; production email verification and PostgreSQL migration remain outstanding.
-- Contributions: members can record self-reported USD amounts. Reports are shown separately from pending and independently verified settlements; payments remain disabled.
+- Contributions: members can record self-reported USD amounts or initiate the wallet-confirmed NEAR Intents funding flow after a project administrator verifies a treasury. Quote-bound provider status is not independent settlement verification; real transfers have not been tested.
 - AI: the NEAR AI Cloud chat-completions adapter and reviewable plan flow are implemented; no API key or model is configured by default. Provider discovery remains unavailable.
 - Tasks: project administrators can create tasks and project members can update status and add reported outcomes; optional AI task categories and draft estimates are retained when accepted. No task invokes an agent or service provider, and estimates are not quotes.
 

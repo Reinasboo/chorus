@@ -97,6 +97,14 @@ export const project = sqliteTable(
     targetAmountMinor: text("targetAmountMinor").notNull(),
     currency: text("currency").notNull().default("USD"),
     status: text("status").notNull().default("active"),
+    nearTreasuryAccount: text("nearTreasuryAccount"),
+    nearTreasuryVerifiedAt: integer("nearTreasuryVerifiedAt", {
+      mode: "timestamp_ms",
+    }),
+    nearTreasuryVerifiedBy: text("nearTreasuryVerifiedBy").references(
+      () => user.id,
+      { onDelete: "set null" },
+    ),
     createdBy: text("createdBy")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
@@ -251,6 +259,93 @@ export const contribution = sqliteTable(
   ],
 );
 
+export const nearWalletChallenge = sqliteTable(
+  "nearWalletChallenge",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("projectId")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    accountId: text("accountId").notNull(),
+    nonce: text("nonce").notNull(),
+    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+    consumedAt: integer("consumedAt", { mode: "timestamp_ms" }),
+    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => [
+    index("near_wallet_challenge_project_user_idx").on(
+      table.projectId,
+      table.userId,
+      table.expiresAt,
+    ),
+  ],
+);
+
+export const nearIntentPayment = sqliteTable(
+  "nearIntentPayment",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("projectId")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    contributionId: text("contributionId")
+      .notNull()
+      .unique()
+      .references(() => contribution.id, { onDelete: "cascade" }),
+    contributorId: text("contributorId")
+      .notNull()
+      .references(() => user.id, { onDelete: "restrict" }),
+    idempotencyKey: text("idempotencyKey").notNull(),
+    correlationId: text("correlationId").notNull().unique(),
+    depositAddress: text("depositAddress").notNull().unique(),
+    payerAccount: text("payerAccount").notNull(),
+    recipientAccount: text("recipientAccount").notNull(),
+    originAssetId: text("originAssetId").notNull(),
+    destinationAssetId: text("destinationAssetId").notNull(),
+    originTokenContract: text("originTokenContract").notNull(),
+    destinationTokenContract: text("destinationTokenContract").notNull(),
+    amountIn: text("amountIn").notNull(),
+    maxAmountIn: text("maxAmountIn"),
+    amountOut: text("amountOut").notNull(),
+    deadline: integer("deadline", { mode: "timestamp_ms" }).notNull(),
+    status: text("status").notNull().default("PENDING_DEPOSIT"),
+    depositTransactionHash: text("depositTransactionHash"),
+    destinationTransactionHash: text("destinationTransactionHash"),
+    statusEvidence: text("statusEvidence"),
+    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => [
+    uniqueIndex("near_intent_idempotency_idx").on(
+      table.projectId,
+      table.contributorId,
+      table.idempotencyKey,
+    ),
+    index("near_intent_project_status_idx").on(
+      table.projectId,
+      table.status,
+      table.createdAt,
+    ),
+    check(
+      "near_intent_amounts_check",
+      sql`cast(${table.amountIn} as integer) > 0 and cast(${table.amountOut} as integer) > 0`,
+    ),
+    check(
+      "near_intent_status_check",
+      sql`${table.status} in ('PENDING_DEPOSIT', 'KNOWN_DEPOSIT_TX', 'PROCESSING', 'SUCCESS', 'FAILED', 'REFUNDED', 'INCOMPLETE_DEPOSIT', 'EXPIRED', 'VERIFICATION_FAILED')`,
+    ),
+  ],
+);
+
 export const projectSpendingPolicy = sqliteTable(
   "projectSpendingPolicy",
   {
@@ -391,6 +486,7 @@ export const projectRelations = relations(project, ({ many, one }) => ({
   }),
   purchaseApprovals: many(purchaseApproval),
   tasks: many(projectTask),
+  nearIntentPayments: many(nearIntentPayment),
 }));
 
 export const projectMemberRelations = relations(projectMember, ({ one }) => ({
@@ -415,6 +511,8 @@ export const schema = {
   invitation,
   activityEvent,
   contribution,
+  nearWalletChallenge,
+  nearIntentPayment,
   projectSpendingPolicy,
   purchaseApproval,
 };

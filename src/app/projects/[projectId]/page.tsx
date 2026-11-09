@@ -9,6 +9,7 @@ import { ProjectTaskBoard } from "@/components/project-task-board";
 import { ProjectPlanningPanel } from "@/components/project-planning-panel";
 import { ProjectEditForm } from "@/components/project-edit-form";
 import { ContributionPanel } from "@/components/contribution-panel";
+import { NearTreasurySettings } from "@/components/near-treasury-settings";
 import { SpendingControls } from "@/components/spending-controls";
 import { getCurrentSession } from "@/lib/auth-session";
 import { isNearAiPlannerConfigured } from "@/lib/near-ai-planner";
@@ -111,6 +112,12 @@ async function ProjectContent({ params }: PageProps) {
                 projectId={project.id}
                 summary={contributionLedger.summary}
                 contributions={contributionLedger.contributions}
+                nearTreasuryAccount={
+                  project.nearTreasuryVerifiedAt
+                    ? project.nearTreasuryAccount
+                    : null
+                }
+                isActive={project.status === "active"}
               />
               <SpendingControls
                 projectId={project.id}
@@ -139,6 +146,16 @@ async function ProjectContent({ params }: PageProps) {
             </div>
 
             <aside className="detail-aside">
+              <NearTreasurySettings
+                projectId={project.id}
+                accountId={
+                  project.nearTreasuryVerifiedAt
+                    ? project.nearTreasuryAccount
+                    : null
+                }
+                verifiedAt={project.nearTreasuryVerifiedAt?.toISOString() ?? null}
+                canManage={canManageProject(project.role)}
+              />
               <section className="budget-card">
                 <p className="eyebrow">TARGET BUDGET</p>
                 <strong>{formatUsdFromMinorUnits(project.targetAmountMinor)}</strong>
@@ -200,9 +217,10 @@ async function ProjectContent({ params }: PageProps) {
                   </div>
                 </div>
                 <p>
-                  Spending and payment evidence are unavailable because no
-                  payment execution or settlement verifier is configured.
-                  Approvals reserve funds but do not spend them.
+                  Agent purchases and independent settlement verification are
+                  not configured. NEAR Intents funding status is reported by
+                  1Click and is not independently reconciled. Approvals
+                  reserve funds but do not spend them.
                 </p>
               </section>
               <section className="detail-card members-card" id="members">
@@ -225,7 +243,7 @@ async function ProjectContent({ params }: PageProps) {
                   />
                 )}
               </section>
-              <div className="safety-callout"><span className="safety-icon">i</span><p>Contribution entries are self-reported only. Payments and agent spending are disabled.</p></div>
+              <div className="safety-callout"><span className="safety-icon">i</span><p>Self-reported entries are not verified funds. NEAR Intents funding requires an explicit wallet confirmation; agent spending is not enabled.</p></div>
             </aside>
           </div>
         </div>

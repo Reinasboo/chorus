@@ -170,17 +170,17 @@ Define database constraints and authorization checks for ownership, membership, 
 ### Phase 3 — Contributions, budget accounting, and activity history
 
 - [x] Implement idempotent member-submitted contribution reports; display them as explicitly unverified and do not initiate a transfer.
-- [ ] Implement contribution initiation through the validated route; display clear pending/confirmed/failed/expired status.
-- [ ] Verify settlement before marking a contribution confirmed; reconcile amount, asset, network, recipient, and provider/external reference.
+- [x] Implement a mainnet-only wNEAR-to-USDC contribution flow through NEAR Intents 1Click, with verified project treasury and explicit contributor-wallet confirmation; display pending and quote-bound provider-reported outcomes.
+- [ ] Independently verify settlement before marking a contribution confirmed. Current status handling matches 1Click's response to the stored quote (amount, asset, recipient, correlation, and destination transaction hash) but does not independently reconcile the transaction against NEAR RPC.
 - [x] Make report creation idempotent and prevent user-reported rows from entering verified totals; provider callbacks/events and their delivery edge cases remain open.
 - [x] Calculate reported, pending, verified, and evidenced-refund totals in integer USD minor units; do not aggregate unlike currencies.
 - [x] Calculate active authorization reservations and verified funds not reserved under current policy; approval creation/review uses transactional reservations to prevent concurrent over-authorization.
 - [ ] Calculate completed expenditure and reconcile execution against reservations; live payment execution is disabled.
 - [x] Add database evidence constraints for verified settlements/refunds and record contribution-report activity with actor, timestamp, and source.
-- [ ] Complete provider settlement, expiry, failure, refund lifecycle handling, and independent verification/reconciliation.
+- [ ] Complete provider settlement, expiry, failure, refund lifecycle handling, and independent verification/reconciliation; the current integration records 1Click terminal outcomes but does not independently reconcile destination-chain settlement or refund transactions.
 - [x] Build contribution reports, verified-vs-reported budget summary, and verified progress display; payment transaction detail is still open.
 
-**Current status:** The self-report ledger, server-side membership checks, idempotency, append-only report activity, integer-cent summaries, evidence-gated verified totals, and UI separation are implemented. Active pending/approved reservations and unreserved verified balances are now shown separately using the current policy version and expiry. No contribution payment route or independent settlement verifier is configured, so app-reported records cannot increase verified totals and completed expenditure remains unavailable; the Phase 3 exit check is not met.
+**Current status:** The self-report ledger, server-side membership checks, idempotency, append-only activity, integer-cent summaries, evidence-gated verified totals, and UI separation are implemented. A project can verify its NEAR account using a NEP-413 signature; contributors can request a wNEAR-to-USDC exact-output 1Click quote and explicitly approve the deposit in their NEAR wallet. Quote-bound provider status is matched to the stored payment scope and stored as payment-status evidence only; a 1Click success remains pending and does not increase independently verified contribution totals. No real transfer has been tested. Agent spending, completed expenditure, and independent refund verification remain unavailable; the Phase 3 exit check is not met.
 
 **Exit check:** Verified and unverified funds are clearly distinguished; duplicate/failed/expired events do not inflate balances; concurrent reservations cannot exceed policy/budget; audit trail explains every balance change.
 
@@ -210,7 +210,7 @@ Define database constraints and authorization checks for ownership, membership, 
 - [ ] Capture provider response and deliverable, associate them with the approved task/payment, and distinguish provider claim from verified payment evidence.
 - [ ] Show real-time or refreshable execution/payment status with understandable failure and recovery actions; never report success until verified.
 
-**Current blocker:** No testnet exists for the selected NEAR Intents route; no live payment, wallet authorization, provider, or verifier is configured. A real mainnet transaction requires separate, specific user authorization, which has not been given. Payment execution remains disabled; no adapter may claim success.
+**Current blocker:** No testnet exists for NEAR Intents. The mainnet-only wallet-confirmed project funding flow is implemented but has not been exercised with real assets; agent MPP purchases, a provider endpoint, and an independent settlement verifier are not configured. Do not send a real transfer without separate authorization for the exact amount and recipient.
 
 **Exit check:** The full campaign purchase completes through a real supported test route; duplicated events, timeout/retry, provider errors, payment failure, and verification mismatch cannot create false success or double-spend.
 

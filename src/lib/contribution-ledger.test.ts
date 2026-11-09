@@ -69,6 +69,22 @@ describe("summarizeContributions", () => {
     });
   });
 
+  it("does not count a provider-reported success without independent evidence", () => {
+    expect(
+      summarizeContributions([
+        row({
+          externalReference: "1click-quote",
+          source: "payment_adapter",
+          status: "pending",
+        }),
+      ]),
+    ).toEqual({
+      reportedAmountMinor: "0",
+      pendingAmountMinor: "2500",
+      verifiedAmountMinor: "0",
+    });
+  });
+
   it("ignores evidence that does not match the recorded payment", () => {
     const contribution = row({
       externalReference: "payment-1",

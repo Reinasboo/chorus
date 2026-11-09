@@ -1,6 +1,6 @@
 # ADR 0001: NEAR Intents and MPP payment boundary
 
-- **Status:** Accepted for implementation planning; live mainnet settlement is not authorized by this decision.
+- **Status:** Funding prototype implemented; no real transfer has been tested or authorized by this decision.
 - **Date:** 2026-11-09
 
 ## Context
@@ -16,7 +16,7 @@ Current official documentation reviewed:
 - [MPP NEAR Intents method](https://mpp.dev/payment-methods/nearintents): identifies `@defuse-protocol/nearintents-mpp-sdk`, single-use challenge-bound deposit addresses, exact merchant output, and supported MPP `charge` intent. It also explicitly says settlement is not trustless during the swap.
 - [MPP agent-spend guide](https://mpp.dev/guides/managing-agent-spend): stresses scoped spend controls and method-specific payment rails.
 
-The documented MPP/NEAR Intents integration exists, but its settlement path cannot be safely exercised as a testnet transaction. A live transaction can move real assets and may be irreversible.
+The documented MPP/NEAR Intents integration exists, but its settlement path cannot be safely exercised as a testnet transaction. A live transaction can move real assets and may be irreversible. The current prototype implements project funding only: a verified NEAR treasury, exact-output wNEAR-to-USDC 1Click quote, contributor-wallet deposit, and quote-bound provider-status check. This does not implement MPP agent purchases and does not independently reconcile destination settlement against NEAR RPC.
 
 ## Decision
 
@@ -26,12 +26,12 @@ The documented MPP/NEAR Intents integration exists, but its settlement path cann
 4. Bind approval to the exact provider, amount, asset, route, recipient, policy version, and expiry. Reject stale, changed, expired, or revoked authorization before payment.
 5. Treat MPP receipts and provider responses as protocol evidence to validate; independently reconcile settlement status and exact recipient/amount/asset before marking expenditure verified.
 6. Clearly label any fixture or simulated integration. It must not be presented as a real payment or verified contribution.
-7. Re-check the current MPP SDK/API documentation and package behavior before implementation. This ADR records documentation findings, not a claim that the integration has already been tested.
+7. Re-check current MPP SDK/API documentation and package behavior before extending the flow. The current funding path is not a real-transaction test or a claim of independent settlement verification.
 
 ## Consequences
 
 - Safe offline development and deterministic adapter tests can proceed without a funded wallet.
-- Mainnet end-to-end verification is a release blocker unless separately authorized and performed with an explicitly confirmed amount and destination.
+- The funding path is mainnet-only and has not been end-to-end tested; any real transfer requires separate, explicit authorization for the exact amount and recipient.
 - The interface must distinguish `proposed`, `awaiting approval`, `authorized`, `payment pending`, `verified`, and failure/refund states.
 - The application must explain the temporary trust/custody model and quote expiry before a user confirms payment.
-- If live NEAR Intents settlement is not authorized, the release must disclose that limitation rather than labeling a mock as a completed payment.
+- The UI must disclose that 1Click temporarily handles swaps and its status is not independently reconciled; do not label a mock or provider response as independently verified settlement.

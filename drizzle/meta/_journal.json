@@ -43,6 +43,13 @@
       "when": 1794238413568,
       "tag": "0005_slow_fenris",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794240934017,
+      "tag": "0006_pretty_absorbing_man",
+      "breakpoints": true
     }
   ]
 }
