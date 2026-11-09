@@ -3,27 +3,27 @@ import { ChorusMark } from "@/components/chorus-mark";
 
 const features = [
   {
-    number: "01",
     title: "Projects with purpose",
     text: "Give every shared goal a clear objective, a team, and a visible path forward.",
+    mark: "◇",
     className: "feature-large",
   },
   {
-    number: "02",
     title: "Accountable by design",
     text: "Separate self-reported contributions from independently verified settlement.",
+    mark: "◉",
     className: "",
   },
   {
-    number: "03",
     title: "Human-approved spending",
     text: "Set limits and require explicit review before any purchase can proceed.",
+    mark: "↗",
     className: "",
   },
   {
-    number: "04",
     title: "Intelligence, with boundaries",
     text: "Turn intent into structured work. Keep model suggestions separate from approvals and execution.",
+    mark: "✳",
     className: "feature-wide",
   },
 ];
@@ -48,28 +48,26 @@ export default function LandingPage() {
       </header>
 
       <section className="landing-hero">
-        <div className="hero-grid-pattern" aria-hidden="true" />
-        <div className="hero-glow" aria-hidden="true" />
         <div className="landing-hero-copy">
-          <span className="announcement-pill"><i /> BUILT FOR SHARED AMBITION</span>
-          <p className="hero-kicker">MANY PEOPLE. ONE PURPOSE.</p>
-          <h1>Make good things<br /><span>happen together.</span></h1>
+          <span className="announcement-pill"><i /> Shared projects, clearly accounted</span>
+          <p className="hero-kicker">Many people. One purpose.</p>
+          <h1>Shared goals.<br />Clearly accounted.</h1>
           <p className="hero-description">
-            Bring people, plans, and transparent budgets into one place.
-            Chorus helps teams move from a shared goal to accountable action.
+            Bring the people, contribution reports, approvals, and work behind
+            a shared goal into one auditable project.
           </p>
           <div className="hero-actions">
-            <Link className="button button-primary" href="/sign-in">Start building <span aria-hidden="true">↗</span></Link>
-            <a className="button button-quiet" href="#how-it-works"><span className="play-icon">↓</span> Explore how it works</a>
+            <Link className="button button-primary" href="/sign-in">Create a project <span aria-hidden="true">↗</span></Link>
+            <a className="button button-quiet" href="#how-it-works">See how Chorus works</a>
           </div>
-          <div className="hero-footnote"><span className="status-dot" /> Payments are disabled in this prototype</div>
+          <div className="hero-footnote"><span className="status-dot" /> No live payments are enabled</div>
         </div>
 
-        <div className="hero-preview" aria-label="Preview of a Chorus project workspace">
+        <div className="hero-preview" aria-label="Illustrative preview of a Chorus project workspace">
           <div className="preview-window">
             <div className="preview-window-bar">
               <span className="preview-brand"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span> CHORUS</span>
-              <span className="preview-status"><i /> PROJECT WORKSPACE</span>
+              <span className="preview-status"><i /> Example workspace</span>
               <span className="preview-avatar">A</span>
             </div>
             <div className="preview-content">
@@ -80,55 +78,62 @@ export default function LandingPage() {
                 <span>✳ <b>Intelligence</b></span>
               </div>
               <div className="preview-main">
-                <span className="preview-overline">ACTIVE PROJECT · OWNER</span>
-                <h2>Community campaign</h2>
-                <p>Bring the neighborhood together around local art.</p>
-                <div className="preview-stats">
-                  <div><small>VERIFIED FUNDS</small><strong>$0.00</strong><em>Payments disabled</em></div>
-                  <div><small>PROJECT TARGET</small><strong>$2,400</strong><em>USD budget</em></div>
+                <span className="preview-overline">Illustrative data only</span>
+                <h2>Community art campaign</h2>
+                <p>A shared goal, with every decision visible.</p>
+                <div className="preview-ledger" aria-label="Illustrative project activity">
+                  <div className="preview-ledger-row">
+                    <span className="ledger-marker ledger-marker-reported" aria-hidden="true" />
+                    <span><b>Contribution report</b><small>Member reported · not verified</small></span>
+                    <em>Unverified</em>
+                  </div>
+                  <div className="preview-ledger-row">
+                    <span className="ledger-marker ledger-marker-review" aria-hidden="true" />
+                    <span><b>Purchase request</b><small>Exact scope · awaiting a person</small></span>
+                    <em>Review first</em>
+                  </div>
+                  <div className="preview-ledger-row">
+                    <span className="ledger-marker ledger-marker-task" aria-hidden="true" />
+                    <span><b>Campaign artwork</b><small>Task status · member updated</small></span>
+                    <em>In progress</em>
+                  </div>
                 </div>
-                <div className="preview-activity">
-                  <div className="preview-activity-head"><b>Recent activity</b><span>View all</span></div>
-                  <div className="preview-event"><i className="event-dot event-red" /><span><b>Project created</b><small>Owner · just now</small></span><em>Logged</em></div>
-                  <div className="preview-event"><i className="event-dot event-green" /><span><b>Policy configured</b><small>Owner · project controls</small></span><em>Reviewable</em></div>
-                </div>
+                <p className="preview-ledger-note">An approval records a decision. It does not move money.</p>
               </div>
             </div>
-            <div className="preview-privacy"><span>◇</span> Reports are not proof of settlement</div>
+            <div className="preview-privacy"><span aria-hidden="true">◇</span> Example interface, with no live project or payment data</div>
           </div>
-          <div className="hero-float-card"><span className="float-icon">✓</span><span><b>Human control stays in the loop</b><small>Review scope before approvals</small></span></div>
         </div>
       </section>
 
       <section className="landing-trust-row" aria-label="Chorus principles">
-        <span>BUILT AROUND PROJECTS</span><i />
-        <span>HUMAN-APPROVED</span><i />
-        <span>VERIFICATION FIRST</span><i />
-        <span>NO HIDDEN EXECUTION</span>
+        <span>Projects with purpose</span><i />
+        <span>Human review</span><i />
+        <span>Clear funding status</span><i />
+        <span>No hidden execution</span>
       </section>
 
       <section className="landing-section process-section" id="how-it-works">
         <div className="section-heading landing-section-heading">
-          <div><span className="section-kicker">A CLEAR PATH FORWARD</span><h2>From shared intention<br />to accountable action.</h2></div>
+          <div><span className="section-kicker">A clear path forward</span><h2>From shared intention<br />to accountable action.</h2></div>
           <p>Complex coordination should feel simple. Start with the outcome, then move one deliberate step at a time.</p>
         </div>
         <div className="process-grid">
-          <article className="process-card"><span>01</span><i>⌘</i><h3>Bring people together</h3><p>Create a project, set the objective, and invite the people who share the purpose.</p><small>PROJECTS · MEMBERS · ROLES</small></article>
-          <article className="process-card"><span>02</span><i>◉</i><h3>Make resources visible</h3><p>Track contribution reports separately from verified funds and make budget controls explicit.</p><small>LEDGER · POLICY · AUDIT</small></article>
-          <article className="process-card"><span>03</span><i>↗</i><h3>Keep decisions human</h3><p>Review an exact purchase scope and approve it only when policy and verified funds allow.</p><small>REVIEW · APPROVAL · EXECUTION</small></article>
+          <article className="process-card"><span>01</span><i>⌘</i><h3>Bring people together</h3><p>Create a project, set the objective, and invite the people who share the purpose.</p><small>Projects, members, roles</small></article>
+          <article className="process-card"><span>02</span><i>◉</i><h3>Make resources visible</h3><p>Track contribution reports separately from verified funds and make budget controls explicit.</p><small>Ledger, policy, activity</small></article>
+          <article className="process-card"><span>03</span><i>↗</i><h3>Keep decisions human</h3><p>Review an exact purchase scope and approve it only when policy and verified funds allow.</p><small>Review, approval, execution</small></article>
         </div>
       </section>
 
       <section className="landing-section features-section" id="product">
         <div className="section-heading landing-section-heading">
-          <div><span className="section-kicker">PURPOSE-BUILT FOR TEAMS</span><h2>Financial clarity.<br />Collaborative momentum.</h2></div>
+          <div><span className="section-kicker">Purpose-built for teams</span><h2>Financial clarity.<br />Collaborative momentum.</h2></div>
           <p>A shared operating space that keeps the objective, the people, and the financial paper trail connected.</p>
         </div>
         <div className="feature-grid">
           {features.map((feature) => (
-            <article className={`feature-card ${feature.className}`} key={feature.number}>
-              <span className="feature-number">{feature.number}</span>
-              <span className="feature-mark" aria-hidden="true">{feature.number === "03" ? "↗" : feature.number === "04" ? "✳" : feature.number === "02" ? "◉" : "◇"}</span>
+            <article className={`feature-card ${feature.className}`} key={feature.title}>
+              <span className="feature-mark" aria-hidden="true">{feature.mark}</span>
               <h3>{feature.title}</h3>
               <p>{feature.text}</p>
               <span className="feature-line" />
@@ -139,22 +144,22 @@ export default function LandingPage() {
 
       <section className="landing-section technology-section" id="technology">
         <div className="technology-copy">
-          <span className="section-kicker">BUILT WITH OPEN EYES</span>
+          <span className="section-kicker">Built with open eyes</span>
           <h2>Infrastructure should earn trust.</h2>
           <p>Chorus is exploring NEAR infrastructure for future payments. The current prototype does not connect a wallet, transfer assets, or verify chain settlement.</p>
           <Link className="text-link" href="/sign-in">Explore the prototype <span aria-hidden="true">→</span></Link>
         </div>
         <div className="technology-list">
-          <div><span className="tech-mark">N</span><span><b>NEAR Protocol</b><small>Planned infrastructure</small></span><em>PLANNED</em></div>
-          <div><span className="tech-mark">↔</span><span><b>NEAR Intents</b><small>Route validation required</small></span><em>PLANNED</em></div>
-          <div><span className="tech-mark">M</span><span><b>Machine Payments Protocol</b><small>Payment flow not connected</small></span><em>PLANNED</em></div>
-          <div><span className="tech-mark">✳</span><span><b>NEAR AI Cloud</b><small>No model provider configured</small></span><em>PLANNED</em></div>
+          <div><span className="tech-mark">N</span><span><b>NEAR Protocol</b><small>Settlement design not validated</small></span><em>Not connected</em></div>
+          <div><span className="tech-mark">↔</span><span><b>NEAR Intents</b><small>No supported route configured</small></span><em>Not connected</em></div>
+          <div><span className="tech-mark">M</span><span><b>Machine Payments Protocol</b><small>No service payment flow configured</small></span><em>Not connected</em></div>
+          <div><span className="tech-mark">✳</span><span><b>NEAR AI Cloud</b><small>Optional; no model configured</small></span><em>Optional</em></div>
         </div>
       </section>
 
       <section className="landing-final-cta">
         <div className="final-cta-glow" aria-hidden="true" />
-        <span className="section-kicker">START WITH THE WHY</span>
+        <span className="section-kicker">Start with the why</span>
         <h2>Great things happen<br />when people move together.</h2>
         <p>Give your next shared goal a clear place to begin.</p>
         <Link className="button button-primary" href="/sign-in">Create a project <span aria-hidden="true">↗</span></Link>
