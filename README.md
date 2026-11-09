@@ -10,6 +10,7 @@ Product direction and implementation progress:
 - [Planning and spending controls decision](./docs/adr/0003-planning-and-spending-controls.md)
 - [Optional NEAR AI planning decision](./docs/adr/0004-near-ai-planning.md)
 - [Local demo walkthrough](./docs/demo.md)
+- [Submission demo video outline](./docs/submission-demo-outline.md)
 
 ## Current status
 

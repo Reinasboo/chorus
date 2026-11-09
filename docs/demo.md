@@ -1,6 +1,6 @@
 # Chorus local demo
 
-This walkthrough demonstrates identity, project collaboration, unverified contribution reporting, and server-enforced spending controls. It does not simulate or claim a payment, AI-generated plan, provider offer, or settlement.
+This walkthrough demonstrates identity, project collaboration, unverified contribution reporting, and server-enforced spending controls. Optional AI draft planning is available only when explicitly configured. It does not simulate or claim a payment, provider offer, or settlement.
 
 ## Start the app
 

@@ -127,8 +127,9 @@ export function ProjectTaskBoard({
       </div>
       <h2>Work in progress</h2>
       <p className="task-board-intro">
-        Tasks are created and updated by project members. No AI plan, agent
-        execution, provider service, or payment is connected.
+        Tasks are managed by project members. Optional AI draft suggestions can
+        be reviewed and added manually; no agent execution, provider service,
+        or payment is connected.
         {!isActive && " Task changes are disabled because this project is not active."}
       </p>
 
