@@ -26,8 +26,8 @@ async function InviteContent({ params }: PageProps) {
   }
 
   return (
-    <main className="invite-page">
-      <Link className="brand-lockup" href="/"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span><span className="brand-wordmark">CHORUS</span></Link>
+    <main className="invite-page" id="main-content">
+      <Link className="brand-lockup" href="/"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span><span className="brand-wordmark">Chorus</span></Link>
       <section className="invite-card">
         <p className="eyebrow">YOU&apos;RE INVITED</p>
         <h1>Make something happen together.</h1>

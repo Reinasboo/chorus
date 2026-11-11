@@ -30,11 +30,11 @@ const features = [
 
 export default function LandingPage() {
   return (
-    <main className="landing-page">
+    <main className="landing-page" id="main-content">
       <header className="landing-nav">
         <Link className="brand-lockup" href="/">
           <span className="brand-icon"><ChorusMark className="brand-symbol" /></span>
-          <span className="brand-wordmark">CHORUS</span>
+          <span className="brand-wordmark">Chorus</span>
         </Link>
         <nav className="landing-links" aria-label="Main navigation">
           <a href="#product">Product</a>
@@ -66,7 +66,7 @@ export default function LandingPage() {
         <div className="hero-preview" aria-label="Illustrative preview of a Chorus project workspace">
           <div className="preview-window">
             <div className="preview-window-bar">
-              <span className="preview-brand"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span> CHORUS</span>
+              <span className="preview-brand"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span> Chorus</span>
               <span className="preview-status"><i /> Example workspace</span>
               <span className="preview-avatar">A</span>
             </div>
@@ -166,7 +166,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="landing-footer">
-        <Link className="brand-lockup" href="/"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span><span className="brand-wordmark">CHORUS</span></Link>
+        <Link className="brand-lockup" href="/"><span className="brand-icon"><ChorusMark className="brand-symbol" /></span><span className="brand-wordmark">Chorus</span></Link>
         <span>Many people. One purpose. Intelligent execution.</span>
         <span className="footer-prototype"><i /> Prototype · mainnet funding not end-to-end tested</span>
       </footer>

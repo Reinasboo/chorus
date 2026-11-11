@@ -10,6 +10,7 @@ export function SignInForm() {
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,6 +53,10 @@ export function SignInForm() {
 
   return (
     <form className="auth-form" onSubmit={submit}>
+      <div className="auth-mode-switcher" aria-label="Authentication mode">
+        <button className={mode === "sign-in" ? "is-active" : ""} type="button" onClick={() => { setMode("sign-in"); setMessage(""); }}>Sign in</button>
+        <button className={mode === "sign-up" ? "is-active" : ""} type="button" onClick={() => { setMode("sign-up"); setMessage(""); }}>Create account</button>
+      </div>
       {mode === "sign-up" && (
         <label>
           Your name
@@ -70,32 +75,25 @@ export function SignInForm() {
       </label>
       <label>
         Password
-        <input
-          name="password"
-          type="password"
-          autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-          required
-          minLength={8}
-          maxLength={128}
-        />
+        <span className="password-field">
+          <input
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+            required
+            minLength={8}
+            maxLength={128}
+          />
+          <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"}>
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </span>
       </label>
       {message && <p className="form-message" role="alert">{message}</p>}
       <button className="button button-primary button-wide" disabled={busy}>
         {busy ? "One moment..." : mode === "sign-in" ? "Sign in" : "Create account"}
       </button>
-      <p className="form-switch">
-        {mode === "sign-in" ? "New to Chorus?" : "Already have an account?"}{" "}
-        <button
-          className="text-button"
-          type="button"
-          onClick={() => {
-            setMode(mode === "sign-in" ? "sign-up" : "sign-in");
-            setMessage("");
-          }}
-        >
-          {mode === "sign-in" ? "Create an account" : "Sign in"}
-        </button>
-      </p>
+      <p className="form-switch">By continuing, you agree to use Chorus as a coordination record—not as proof of settlement.</p>
     </form>
   );
 }

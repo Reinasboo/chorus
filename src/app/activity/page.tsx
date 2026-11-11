@@ -20,7 +20,7 @@ async function ActivityContent() {
 
   const ledger = await getActivityLedgerForUser(session.user.id);
   return (
-    <main className="app-shell">
+    <main className="app-shell" id="main-content">
       <AppSidebar
         userName={session.user.name}
         email={session.user.email}

@@ -1,0 +1,111 @@
+1
+00:00:00,600 --> 00:00:04,861
+Great idea. Six people. Four apps. One spreadsheet having a nervous
+
+2
+00:00:04,861 --> 00:00:06,869
+breakdown. Sound familiar?
+
+3
+00:00:09,600 --> 00:00:13,771
+Meet Chorus. One shared space for the goal, the people, the budget,
+
+4
+00:00:13,771 --> 00:00:17,400
+and the work. Finally, everyone is on the same page.
+
+5
+00:00:18,600 --> 00:00:22,269
+Let's launch a community art campaign. Give it a name, set a five
+
+6
+00:00:22,269 --> 00:00:26,158
+hundred dollar target, and define what done looks like. The project
+
+7
+00:00:26,158 --> 00:00:28,445
+becomes the team's shared source of truth.
+
+8
+00:00:32,600 --> 00:00:37,116
+Bring the right people in with a private invitation. Owners, administrators,
+
+9
+00:00:37,116 --> 00:00:41,780
+and contributors have distinct permissions. Everyone can see the objective.
+
+10
+00:00:41,780 --> 00:00:43,400
+Everyone knows where they fit.
+
+11
+00:00:44,600 --> 00:00:49,383
+Break the campaign into manageable tasks. Move the artwork into progress,
+
+12
+00:00:49,383 --> 00:00:53,342
+then record the outcome when it's complete. Optional near AI planning
+
+13
+00:00:53,342 --> 00:00:55,978
+can propose a draft for a person to review.
+
+14
+00:00:58,600 --> 00:01:02,350
+Contributions have their own ledger. Here, Maya reports one hundred
+
+15
+00:01:02,350 --> 00:01:06,437
+and fifty dollars. Chorus keeps that separate from verified funds.
+
+16
+00:01:06,437 --> 00:01:09,281
+A number in a dashboard should never pretend to be a payment.
+
+17
+00:01:12,600 --> 00:01:16,906
+Set a transaction cap, a total budget, and allowed categories. Purchase
+
+18
+00:01:16,906 --> 00:01:21,202
+requests carry an exact purpose, provider, and amount. Human approvals
+
+19
+00:01:21,202 --> 00:01:24,876
+remain subject to policy and verified funds. Your budget deserves
+
+20
+00:01:24,876 --> 00:01:25,400
+boundaries.
+
+21
+00:01:26,600 --> 00:01:30,566
+For project funding, Chorus integrates near Intents: wrapped near
+
+22
+00:01:30,566 --> 00:01:35,686
+to U S D C on near. The owner verifies the receiving account, and
+
+23
+00:01:35,686 --> 00:01:39,400
+the contributor confirms the mainnet transaction in their own wallet.
+
+24
+00:01:40,600 --> 00:01:44,808
+Every recorded change joins the activity ledger. Filter by project
+
+25
+00:01:44,808 --> 00:01:49,210
+or person, then export the record. Collaboration becomes easier when
+
+26
+00:01:49,210 --> 00:01:51,400
+the paper trail is already part of the product.
+
+27
+00:01:52,600 --> 00:01:57,623
+Chorus. Bring people together. Make things happen. Built with NEAR,
+
+28
+00:01:57,623 --> 00:01:59,400
+for the things we can only do together.

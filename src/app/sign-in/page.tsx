@@ -5,11 +5,11 @@ import { SignInForm } from "@/components/sign-in-form";
 
 export default function SignInPage() {
   return (
-    <main className="auth-layout">
+    <main className="auth-layout" id="main-content">
       <section className="auth-story">
         <Link className="brand-lockup" href="/">
           <span className="brand-icon"><ChorusMark className="brand-symbol" /></span>
-          <span className="brand-wordmark">CHORUS</span>
+          <span className="brand-wordmark">Chorus</span>
         </Link>
         <div className="auth-story-copy">
           <p className="eyebrow">MANY PEOPLE. ONE PURPOSE.</p>

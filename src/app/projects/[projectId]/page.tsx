@@ -61,7 +61,7 @@ async function ProjectContent({ params }: PageProps) {
     : [];
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" id="main-content">
       <AppSidebar
         userName={session.user.name}
         email={session.user.email}
@@ -80,7 +80,54 @@ async function ProjectContent({ params }: PageProps) {
             </div>
             <span className="project-created">Started {new Date(project.createdAt).toLocaleDateString()}</span>
           </section>
-          <ProjectSectionNav projectId={project.id} />
+          <ProjectSectionNav />
+
+          <section className="project-pulse" aria-label="Project status at a glance">
+            <div>
+              <span>Verified funding</span>
+              <strong>{formatUsdFromMinorUnits(contributionLedger.summary.verifiedAmountMinor)}</strong>
+              <small>{budgetProgressPercent.toFixed(0)}% of target</small>
+            </div>
+            <div>
+              <span>Work remaining</span>
+              <strong>{outstandingTaskCount}</strong>
+              <small>{outstandingTaskCount === 1 ? "open task" : "open tasks"}</small>
+            </div>
+            <div>
+              <span>Committed</span>
+              <strong>{formatUsdFromMinorUnits(contributionLedger.summary.reservedAmountMinor)}</strong>
+              <small>approved, not spent</small>
+            </div>
+            <div>
+              <span>People</span>
+              <strong>{project.members.length}</strong>
+              <small>{project.members.length === 1 ? "project member" : "project members"}</small>
+            </div>
+          </section>
+
+          <section className="project-next-step" aria-label="Recommended next step">
+            <span className="next-step-mark" aria-hidden="true">→</span>
+            <div>
+              <span className="section-kicker">RECOMMENDED NEXT STEP</span>
+              <strong>
+                {tasks.length === 0
+                  ? "Turn the objective into a small, reviewable plan."
+                  : outstandingTaskCount > 0
+                    ? "Move the next task forward and record its outcome."
+                    : "Review the project outcome and close the loop."}
+              </strong>
+              <p>
+                {tasks.length === 0
+                  ? "Add tasks manually or ask Chorus Intelligence for a draft if an AI provider is configured."
+                  : outstandingTaskCount > 0
+                    ? "Keep task status and outcomes current so everyone sees the same source of truth."
+                    : "All recorded tasks are complete. Confirm the expected outcome before archiving the project."}
+              </p>
+            </div>
+            <Link className="button button-secondary" href={tasks.length === 0 ? "#intelligence" : "#tasks"}>
+              {tasks.length === 0 ? "Build the plan" : "Open tasks"}
+            </Link>
+          </section>
 
           <div className="detail-grid" id="treasury">
             <div className="detail-main">

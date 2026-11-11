@@ -137,7 +137,7 @@ export function AppSidebar({
         <div className="sidebar-brand-row">
           <Link className="brand-lockup" href={overviewHref} onClick={closeMobile}>
             <span className="brand-icon"><ChorusMark className="brand-symbol" /></span>
-            <span className="brand-wordmark">CHORUS</span>
+            <span className="brand-wordmark">Chorus</span>
           </Link>
           <button
             className="sidebar-collapse"
@@ -184,8 +184,8 @@ export function AppSidebar({
           <div className="sidebar-note">
             <span className="status-dot" />
             <span className="sidebar-note-copy">
-              <strong>Payments are off</strong>
-              <small>Safe setup mode</small>
+              <strong>Human review is on</strong>
+              <small>Agent payments are off</small>
             </span>
           </div>
           <div className="user-chip">

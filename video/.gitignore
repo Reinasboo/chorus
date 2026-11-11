@@ -1,0 +1,4 @@
+output/*
+!output/chorus-near-submission.mp4
+!output/chorus-captions.srt
+!output/storyboard.png

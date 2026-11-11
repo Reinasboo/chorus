@@ -19,8 +19,8 @@ export function AppTopbar({
         )}
       </div>
       <div className="topbar-actions">
-        <span className="topbar-status"><i /> Prototype · payments disabled</span>
-        <span className="topbar-wallet"><span aria-hidden="true">◉</span> Wallet not connected</span>
+        <span className="topbar-status"><i /> Agent payments disabled</span>
+        <span className="topbar-wallet"><span aria-hidden="true">◉</span> Wallet connects on demand</span>
       </div>
     </header>
   );

@@ -68,6 +68,12 @@ export function ActivityLedger({
       );
     });
   }, [asOf, dateRange, eventType, events, participantId, projectId, query]);
+  const hasActiveFilters =
+    projectId !== "all" ||
+    eventType !== "all" ||
+    participantId !== "all" ||
+    dateRange !== "all" ||
+    query.trim().length > 0;
 
   function clearFilters() {
     setProjectId("all");
@@ -75,6 +81,27 @@ export function ActivityLedger({
     setParticipantId("all");
     setDateRange("all");
     setQuery("");
+  }
+
+  function exportCsv() {
+    const escape = (value: string) => `"${value.replaceAll('"', '""')}"`;
+    const rows = filteredEvents.map((event) => [
+      event.createdAt,
+      event.projectName,
+      event.action.replaceAll(".", " "),
+      event.entityType.replaceAll("_", " "),
+      event.actorName ?? "System",
+    ]);
+    const csv = [
+      ["Timestamp", "Project", "Action", "Record type", "Actor"],
+      ...rows,
+    ].map((row) => row.map(escape).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `chorus-activity-${new Date(asOf).toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -119,12 +146,17 @@ export function ActivityLedger({
             <option value="30">Last 30 days</option>
           </select>
         </label>
-        <button className="activity-reset" type="button" onClick={clearFilters}>Clear</button>
+        <button className="activity-reset" type="button" onClick={clearFilters} disabled={!hasActiveFilters}>Clear</button>
       </div>
 
       <div className="activity-results-heading">
-        <span className="section-kicker">PROJECT EVENT RECORDS</span>
-        <span className="section-count">{filteredEvents.length} shown · up to 250 recent events</span>
+        <div>
+          <span className="section-kicker">PROJECT EVENT RECORDS</span>
+          <span className="activity-result-copy">{filteredEvents.length} shown · up to 250 recent events</span>
+        </div>
+        <button className="button button-secondary" type="button" onClick={exportCsv} disabled={!filteredEvents.length}>
+          Export CSV
+        </button>
       </div>
 
       {filteredEvents.length ? (

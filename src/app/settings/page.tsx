@@ -18,7 +18,7 @@ async function SettingsContent() {
   if (!session) redirect("/sign-in");
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" id="main-content">
       <AppSidebar
         userName={session.user.name}
         email={session.user.email}
@@ -74,6 +74,18 @@ async function SettingsContent() {
               <li><span><b>Wallet</b><small>No wallet is connected</small></span><em>NOT CONNECTED</em></li>
               <li><span><b>AI provider</b><small>Plan generation is unavailable</small></span><em>NOT CONFIGURED</em></li>
               <li><span><b>Payment provider</b><small>Payment execution and settlement checks are unavailable</small></span><em>NOT CONFIGURED</em></li>
+            </ul>
+          </section>
+          <section className="settings-card readiness-card">
+            <div className="settings-card-heading">
+              <span className="settings-icon">✓</span>
+              <div><h2>Safety boundaries</h2><p>What Chorus will and will not do</p></div>
+            </div>
+            <ul className="readiness-list">
+              <li><span>Human approval records</span><strong className="readiness-on">Available</strong></li>
+              <li><span>Wallet keys stored by Chorus</span><strong>Never</strong></li>
+              <li><span>Automatic agent purchases</span><strong>Disabled</strong></li>
+              <li><span>Independent on-chain reconciliation</span><strong>Not configured</strong></li>
             </ul>
           </section>
           <p className="settings-footer">Chorus does not store wallet credentials or execute agent purchases. NEAR project funding requires each contributor to confirm a mainnet transaction in their wallet.</p>

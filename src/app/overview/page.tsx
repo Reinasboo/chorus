@@ -23,7 +23,7 @@ async function OverviewContent() {
 
   const dashboard = await getDashboardData(session.user.id);
   return (
-    <main className="app-shell">
+    <main className="app-shell" id="main-content">
       <AppSidebar
         userName={session.user.name}
         email={session.user.email}
@@ -43,9 +43,9 @@ async function OverviewContent() {
 
           <section className="stats-grid" aria-label="Workspace overview">
             <article className="stat-card stat-card-primary" id="treasury">
-              <span className="stat-label">VERIFIED CONTRIBUTIONS</span>
+              <span className="stat-label">PROVIDER-REPORTED FUNDING</span>
               <strong>{formatUsdFromMinorUnits(dashboard.summary.verifiedAmountMinor)}</strong>
-              <span className="stat-foot">Independently verified settlement only</span>
+              <span className="stat-foot">Quote-bound status · not independently reconciled</span>
               <span className="stat-orbit" aria-hidden="true" />
             </article>
             <article className="stat-card">
@@ -77,7 +77,7 @@ async function OverviewContent() {
                 <div className="rail-card-header"><span className="rail-icon">◉</span><span className="section-kicker">TREASURY SNAPSHOT</span></div>
                 <h2>Every dollar,<br />accounted for.</h2>
                 <div className="financial-row">
-                  <span>Verified funds</span>
+                  <span>Provider-reported funds</span>
                   <strong>{formatUsdFromMinorUnits(dashboard.summary.verifiedAmountMinor)}</strong>
                 </div>
                 <div className="financial-row">
@@ -89,7 +89,7 @@ async function OverviewContent() {
                   <strong>{formatUsdFromMinorUnits(dashboard.summary.reservedAmountMinor)}</strong>
                 </div>
                 <div className="financial-row">
-                  <span>Verified, unreserved</span>
+                  <span>Reported settled, unreserved</span>
                   <strong>{formatUsdFromMinorUnits(dashboard.summary.unreservedVerifiedAmountMinor)}</strong>
                 </div>
                 <div className="financial-row">
