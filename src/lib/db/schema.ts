@@ -2,37 +2,37 @@ import { relations, sql } from "drizzle-orm";
 import {
   check,
   index,
+  boolean,
   integer,
   primaryKey,
-  sqliteTable,
+  pgTable,
   text,
+  timestamp,
   uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+} from "drizzle-orm/pg-core";
 
-export const user = sqliteTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("emailVerified", { mode: "boolean" })
-    .notNull()
-    .default(false),
+  emailVerified: boolean("emailVerified").notNull().default(false),
   image: text("image"),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
     .notNull()
-    .default(sql`(unixepoch() * 1000)`),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .defaultNow(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
     .notNull()
-    .default(sql`(unixepoch() * 1000)`),
+    .defaultNow(),
 });
 
-export const session = sqliteTable(
+export const session = pgTable(
   "session",
   {
     id: text("id").primaryKey(),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+    expiresAt: timestamp("expiresAt", { withTimezone: true, mode: "date" }).notNull(),
     token: text("token").notNull().unique(),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" }).notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" }).notNull(),
     ipAddress: text("ipAddress"),
     userAgent: text("userAgent"),
     userId: text("userId")
@@ -42,7 +42,7 @@ export const session = sqliteTable(
   (table) => [index("session_user_id_idx").on(table.userId)],
 );
 
-export const account = sqliteTable(
+export const account = pgTable(
   "account",
   {
     id: text("id").primaryKey(),
@@ -54,16 +54,18 @@ export const account = sqliteTable(
     accessToken: text("accessToken"),
     refreshToken: text("refreshToken"),
     idToken: text("idToken"),
-    accessTokenExpiresAt: integer("accessTokenExpiresAt", {
-      mode: "timestamp_ms",
+    accessTokenExpiresAt: timestamp("accessTokenExpiresAt", {
+      withTimezone: true,
+      mode: "date",
     }),
-    refreshTokenExpiresAt: integer("refreshTokenExpiresAt", {
-      mode: "timestamp_ms",
+    refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt", {
+      withTimezone: true,
+      mode: "date",
     }),
     scope: text("scope"),
     password: text("password"),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" }).notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" }).notNull(),
   },
   (table) => [
     index("account_user_id_idx").on(table.userId),
@@ -74,20 +76,20 @@ export const account = sqliteTable(
   ],
 );
 
-export const verification = sqliteTable(
+export const verification = pgTable(
   "verification",
   {
     id: text("id").primaryKey(),
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" }),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" }),
+    expiresAt: timestamp("expiresAt", { withTimezone: true, mode: "date" }).notNull(),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" }),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" }),
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const project = sqliteTable(
+export const project = pgTable(
   "project",
   {
     id: text("id").primaryKey(),
@@ -98,8 +100,9 @@ export const project = sqliteTable(
     currency: text("currency").notNull().default("USD"),
     status: text("status").notNull().default("active"),
     nearTreasuryAccount: text("nearTreasuryAccount"),
-    nearTreasuryVerifiedAt: integer("nearTreasuryVerifiedAt", {
-      mode: "timestamp_ms",
+    nearTreasuryVerifiedAt: timestamp("nearTreasuryVerifiedAt", {
+      withTimezone: true,
+      mode: "date",
     }),
     nearTreasuryVerifiedBy: text("nearTreasuryVerifiedBy").references(
       () => user.id,
@@ -108,12 +111,12 @@ export const project = sqliteTable(
     createdBy: text("createdBy")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     index("project_created_by_idx").on(table.createdBy),
@@ -121,7 +124,7 @@ export const project = sqliteTable(
   ],
 );
 
-export const projectMember = sqliteTable(
+export const projectMember = pgTable(
   "projectMember",
   {
     projectId: text("projectId")
@@ -131,9 +134,9 @@ export const projectMember = sqliteTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     role: text("role").notNull(),
-    joinedAt: integer("joinedAt", { mode: "timestamp_ms" })
+    joinedAt: timestamp("joinedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     primaryKey({ columns: [table.projectId, table.userId] }),
@@ -141,7 +144,7 @@ export const projectMember = sqliteTable(
   ],
 );
 
-export const invitation = sqliteTable(
+export const invitation = pgTable(
   "invitation",
   {
     id: text("id").primaryKey(),
@@ -150,18 +153,18 @@ export const invitation = sqliteTable(
       .references(() => project.id, { onDelete: "cascade" }),
     tokenHash: text("tokenHash").notNull(),
     role: text("role").notNull(),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
-    revokedAt: integer("revokedAt", { mode: "timestamp_ms" }),
-    acceptedAt: integer("acceptedAt", { mode: "timestamp_ms" }),
+    expiresAt: timestamp("expiresAt", { withTimezone: true, mode: "date" }).notNull(),
+    revokedAt: timestamp("revokedAt", { withTimezone: true, mode: "date" }),
+    acceptedAt: timestamp("acceptedAt", { withTimezone: true, mode: "date" }),
     acceptedBy: text("acceptedBy").references(() => user.id, {
       onDelete: "set null",
     }),
     createdBy: text("createdBy")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex("invitation_token_hash_idx").on(table.tokenHash),
@@ -169,7 +172,7 @@ export const invitation = sqliteTable(
   ],
 );
 
-export const activityEvent = sqliteTable(
+export const activityEvent = pgTable(
   "activityEvent",
   {
     id: text("id").primaryKey(),
@@ -183,16 +186,16 @@ export const activityEvent = sqliteTable(
     entityType: text("entityType").notNull(),
     entityId: text("entityId").notNull(),
     details: text("details").notNull(),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     index("activity_project_created_idx").on(table.projectId, table.createdAt),
   ],
 );
 
-export const contribution = sqliteTable(
+export const contribution = pgTable(
   "contribution",
   {
     id: text("id").primaryKey(),
@@ -212,15 +215,15 @@ export const contribution = sqliteTable(
     refundedAmountMinor: text("refundedAmountMinor").notNull().default("0"),
     externalReference: text("externalReference"),
     verificationEvidence: text("verificationEvidence"),
-    verifiedAt: integer("verifiedAt", { mode: "timestamp_ms" }),
+    verifiedAt: timestamp("verifiedAt", { withTimezone: true, mode: "date" }),
     refundEvidence: text("refundEvidence"),
-    refundedAt: integer("refundedAt", { mode: "timestamp_ms" }),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    refundedAt: timestamp("refundedAt", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex("contribution_idempotency_idx").on(
@@ -259,7 +262,7 @@ export const contribution = sqliteTable(
   ],
 );
 
-export const nearWalletChallenge = sqliteTable(
+export const nearWalletChallenge = pgTable(
   "nearWalletChallenge",
   {
     id: text("id").primaryKey(),
@@ -271,11 +274,11 @@ export const nearWalletChallenge = sqliteTable(
       .references(() => user.id, { onDelete: "cascade" }),
     accountId: text("accountId").notNull(),
     nonce: text("nonce").notNull(),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
-    consumedAt: integer("consumedAt", { mode: "timestamp_ms" }),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    expiresAt: timestamp("expiresAt", { withTimezone: true, mode: "date" }).notNull(),
+    consumedAt: timestamp("consumedAt", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     index("near_wallet_challenge_project_user_idx").on(
@@ -286,7 +289,7 @@ export const nearWalletChallenge = sqliteTable(
   ],
 );
 
-export const nearIntentPayment = sqliteTable(
+export const nearIntentPayment = pgTable(
   "nearIntentPayment",
   {
     id: text("id").primaryKey(),
@@ -312,17 +315,17 @@ export const nearIntentPayment = sqliteTable(
     amountIn: text("amountIn").notNull(),
     maxAmountIn: text("maxAmountIn"),
     amountOut: text("amountOut").notNull(),
-    deadline: integer("deadline", { mode: "timestamp_ms" }).notNull(),
+    deadline: timestamp("deadline", { withTimezone: true, mode: "date" }).notNull(),
     status: text("status").notNull().default("PENDING_DEPOSIT"),
     depositTransactionHash: text("depositTransactionHash"),
     destinationTransactionHash: text("destinationTransactionHash"),
     statusEvidence: text("statusEvidence"),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex("near_intent_idempotency_idx").on(
@@ -346,7 +349,7 @@ export const nearIntentPayment = sqliteTable(
   ],
 );
 
-export const projectSpendingPolicy = sqliteTable(
+export const projectSpendingPolicy = pgTable(
   "projectSpendingPolicy",
   {
     projectId: text("projectId")
@@ -356,19 +359,17 @@ export const projectSpendingPolicy = sqliteTable(
     totalAuthorizedCapMinor: text("totalAuthorizedCapMinor").notNull(),
     allowedCategories: text("allowedCategories").notNull(),
     allowedProviders: text("allowedProviders").notNull(),
-    agentExecutionAllowed: integer("agentExecutionAllowed", {
-      mode: "boolean",
-    })
+    agentExecutionAllowed: boolean("agentExecutionAllowed")
       .notNull()
       .default(false),
     version: integer("version").notNull().default(1),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+    expiresAt: timestamp("expiresAt", { withTimezone: true, mode: "date" }).notNull(),
     updatedBy: text("updatedBy")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     check(
@@ -379,7 +380,7 @@ export const projectSpendingPolicy = sqliteTable(
   ],
 );
 
-export const purchaseApproval = sqliteTable(
+export const purchaseApproval = pgTable(
   "purchaseApproval",
   {
     id: text("id").primaryKey(),
@@ -399,17 +400,17 @@ export const purchaseApproval = sqliteTable(
     status: text("status").notNull().default("pending"),
     idempotencyKey: text("idempotencyKey").notNull(),
     policyVersion: integer("policyVersion").notNull(),
-    expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+    expiresAt: timestamp("expiresAt", { withTimezone: true, mode: "date" }).notNull(),
     approverId: text("approverId").references(() => user.id, {
       onDelete: "set null",
     }),
-    approvedAt: integer("approvedAt", { mode: "timestamp_ms" }),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    approvedAt: timestamp("approvedAt", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex("purchase_approval_idempotency_idx").on(
@@ -433,7 +434,7 @@ export const purchaseApproval = sqliteTable(
   ],
 );
 
-export const projectTask = sqliteTable(
+export const projectTask = pgTable(
   "projectTask",
   {
     id: text("id").primaryKey(),
@@ -452,12 +453,12 @@ export const projectTask = sqliteTable(
     updatedBy: text("updatedBy")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
-    updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
       .notNull()
-      .default(sql`(unixepoch() * 1000)`),
+      .defaultNow(),
   },
   (table) => [
     index("project_task_project_created_idx").on(

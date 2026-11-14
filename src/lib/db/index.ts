@@ -1,23 +1,19 @@
 import "server-only";
 
-import Database from "better-sqlite3";
-import { mkdirSync } from "node:fs";
-import { resolve } from "node:path";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { schema } from "./schema";
 
-const databaseUrl = process.env.DATABASE_URL ?? "file:./data/chorus.db";
-if (databaseUrl !== "file:./data/chorus.db") {
-  throw new Error("DATABASE_URL must be file:./data/chorus.db for this prototype.");
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL must point to the Supabase Postgres database.");
 }
 
-const databaseDirectory = resolve(process.cwd(), "data");
-mkdirSync(databaseDirectory, { recursive: true });
-const databasePath = resolve(process.cwd(), "data", "chorus.db");
+const client = postgres(databaseUrl, {
+  connect_timeout: 10,
+  idle_timeout: 20,
+  max: 1,
+  prepare: false,
+});
 
-const sqlite = new Database(databasePath);
-sqlite.pragma("foreign_keys = ON");
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("busy_timeout = 5000");
-
-export const db = drizzle(sqlite, { schema });
+export const db = drizzle(client, { schema });

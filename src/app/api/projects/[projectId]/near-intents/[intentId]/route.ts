@@ -108,8 +108,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   }
 
   const now = new Date();
-  const stored = await db.transaction((transaction) => {
-    const [freshProject] = transaction
+  const stored = await db.transaction(async (transaction) => {
+    const [freshProject] = await transaction
       .select({
         status: project.status,
         nearTreasuryAccount: project.nearTreasuryAccount,
@@ -117,8 +117,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       })
       .from(project)
       .where(eq(project.id, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (
       freshProject?.status !== "active" ||
       freshProject.nearTreasuryAccount !== payment.recipientAccount ||
@@ -126,12 +125,11 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     ) {
       return { kind: "project_changed" as const };
     }
-    const [currentPayment] = transaction
+    const [currentPayment] = await transaction
       .select()
       .from(nearIntentPayment)
       .where(eq(nearIntentPayment.id, intentId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (!currentPayment) return { kind: "not_found" as const };
     if (nearIntentTerminalStatuses.has(currentPayment.status)) {
       return { kind: "terminal" as const };
@@ -142,16 +140,15 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     ) {
       return { kind: "different_hash" as const };
     }
-    transaction
+    await transaction
       .update(nearIntentPayment)
       .set({
         depositTransactionHash: parsed.data.transactionHash,
         updatedAt: now,
       })
-      .where(eq(nearIntentPayment.id, intentId))
-      .run();
+      .where(eq(nearIntentPayment.id, intentId));
     if (!currentPayment.depositTransactionHash) {
-      transaction
+      await transaction
         .insert(activityEvent)
         .values({
           id: randomUUID(),
@@ -165,8 +162,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
             transactionHash: parsed.data.transactionHash,
           }),
           createdAt: now,
-        })
-        .run();
+        });
     }
     return { kind: "stored" as const };
   });
@@ -287,8 +283,8 @@ export async function GET(request: Request, { params }: RouteContext) {
   const terminal = nearIntentTerminalStatuses.has(nextStatus);
   const successful = nextStatus === "SUCCESS";
   const failed = terminal && !successful;
-  const applied = await db.transaction((transaction) => {
-    const [currentPayment] = transaction
+  const applied = await db.transaction(async (transaction) => {
+    const [currentPayment] = await transaction
       .select({
         status: nearIntentPayment.status,
         destinationTransactionHash: nearIntentPayment.destinationTransactionHash,
@@ -296,8 +292,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       })
       .from(nearIntentPayment)
       .where(eq(nearIntentPayment.id, intentId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (!currentPayment) return { status: "VERIFICATION_FAILED", updatedAt: now };
     if (nearIntentTerminalStatuses.has(currentPayment.status)) {
       return {
@@ -315,7 +310,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       };
     }
 
-    transaction
+    await transaction
       .update(nearIntentPayment)
       .set({
         status: nextStatus,
@@ -328,17 +323,15 @@ export async function GET(request: Request, { params }: RouteContext) {
         }),
         updatedAt: now,
       })
-      .where(eq(nearIntentPayment.id, intentId))
-      .run();
+      .where(eq(nearIntentPayment.id, intentId));
     if (failed) {
-      transaction
+      await transaction
         .update(contribution)
         .set({ status: "failed", updatedAt: now })
-        .where(eq(contribution.id, payment.contributionId))
-        .run();
+        .where(eq(contribution.id, payment.contributionId));
     }
     if (currentPayment.status !== nextStatus) {
-      transaction
+      await transaction
         .insert(activityEvent)
         .values({
           id: randomUUID(),
@@ -358,8 +351,7 @@ export async function GET(request: Request, { params }: RouteContext) {
             transactionHash: successful ? transactionHash : undefined,
           }),
           createdAt: now,
-        })
-        .run();
+        });
     }
     return {
       status: nextStatus,

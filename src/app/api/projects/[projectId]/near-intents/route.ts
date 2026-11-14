@@ -179,8 +179,8 @@ export async function POST(request: Request, { params }: RouteContext) {
   const now = new Date();
   const paymentId = randomUUID();
   const contributionId = randomUUID();
-  const result = await db.transaction((transaction) => {
-    const [duplicate] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [duplicate] = await transaction
       .select()
       .from(nearIntentPayment)
       .where(
@@ -190,10 +190,9 @@ export async function POST(request: Request, { params }: RouteContext) {
           eq(nearIntentPayment.idempotencyKey, parsed.data.idempotencyKey),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
     if (duplicate) return { kind: "duplicate" as const, payment: duplicate };
-    const [currentProject] = transaction
+    const [currentProject] = await transaction
       .select({
         status: project.status,
         nearTreasuryAccount: project.nearTreasuryAccount,
@@ -201,8 +200,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       })
       .from(project)
       .where(eq(project.id, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (
       currentProject?.status !== "active" ||
       currentProject.nearTreasuryAccount !== membership.nearTreasuryAccount ||
@@ -211,7 +209,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       return { kind: "project_changed" as const };
     }
 
-    transaction
+    await transaction
       .insert(contribution)
       .values({
         id: contributionId,
@@ -227,8 +225,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         refundedAmountMinor: "0",
         createdAt: now,
         updatedAt: now,
-      })
-      .run();
+      });
     const payment = {
       id: paymentId,
       projectId,
@@ -254,8 +251,8 @@ export async function POST(request: Request, { params }: RouteContext) {
       createdAt: now,
       updatedAt: now,
     };
-    transaction.insert(nearIntentPayment).values(payment).run();
-    transaction
+    await transaction.insert(nearIntentPayment).values(payment);
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -272,8 +269,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           correlationId: quote.correlationId,
         }),
         createdAt: now,
-      })
-      .run();
+      });
     return { kind: "created" as const, payment };
   });
 

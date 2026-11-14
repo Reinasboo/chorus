@@ -99,8 +99,8 @@ export async function POST(request: Request, { params }: RouteContext) {
 
   const now = new Date();
   const contributionId = randomUUID();
-  const result = db.transaction((transaction) => {
-    const [existing] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [existing] = await transaction
       .select({
         id: contribution.id,
         amountMinor: contribution.amountMinor,
@@ -117,8 +117,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           eq(contribution.idempotencyKey, parsed.data.idempotencyKey),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
 
     if (existing) {
       return {
@@ -138,7 +137,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       source: "user_reported",
       createdAt: now,
     };
-    transaction
+    await transaction
       .insert(contribution)
       .values({
         ...record,
@@ -148,9 +147,8 @@ export async function POST(request: Request, { params }: RouteContext) {
         currency: "USD",
         refundedAmountMinor: "0",
         updatedAt: now,
-      })
-      .run();
-    transaction
+      });
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -165,8 +163,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           verification: "user_reported",
         }),
         createdAt: now,
-      })
-      .run();
+      });
 
     return { kind: "created" as const, matches: true, record };
   });

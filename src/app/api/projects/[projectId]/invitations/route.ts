@@ -84,8 +84,8 @@ export async function POST(request: Request, { params }: RouteContext) {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + INVITATION_LIFETIME_MS);
 
-  await db.transaction((transaction) => {
-    transaction
+  await db.transaction(async (transaction) => {
+    await transaction
       .insert(invitation)
       .values({
         id: invitationId,
@@ -95,9 +95,8 @@ export async function POST(request: Request, { params }: RouteContext) {
         expiresAt,
         createdBy: session.user.id,
         createdAt: now,
-      })
-      .run();
-    transaction
+      });
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -108,8 +107,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         entityId: invitationId,
         details: JSON.stringify({ role: inviteRole, expiresAt }),
         createdAt: now,
-      })
-      .run();
+      });
   });
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

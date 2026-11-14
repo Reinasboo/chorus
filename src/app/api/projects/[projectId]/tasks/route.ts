@@ -62,8 +62,8 @@ export async function POST(request: Request, { params }: RouteContext) {
   const estimatedCostMinor = parsed.data.estimatedCost
     ? parseUsdToMinorUnits(parsed.data.estimatedCost)
     : null;
-  const result = db.transaction((transaction) => {
-    const [membership] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [membership] = await transaction
       .select({ role: projectMember.role, status: project.status })
       .from(projectMember)
       .innerJoin(project, eq(project.id, projectMember.projectId))
@@ -73,8 +73,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           eq(projectMember.userId, session.user.id),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
     if (!membership || !canManageProject(membership.role)) {
       return { kind: "forbidden" as const };
     }
@@ -82,7 +81,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       return { kind: "inactive" as const };
     }
 
-    transaction
+    await transaction
       .insert(projectTask)
       .values({
         id: taskId,
@@ -97,9 +96,8 @@ export async function POST(request: Request, { params }: RouteContext) {
         updatedBy: session.user.id,
         createdAt: now,
         updatedAt: now,
-      })
-      .run();
-    transaction
+      });
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -114,8 +112,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           estimatedCostMinor,
         }),
         createdAt: now,
-      })
-      .run();
+      });
     return { kind: "created" as const };
   });
 

@@ -64,13 +64,12 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   }
 
   const now = new Date();
-  const result = db.transaction((transaction) => {
-    const [currentProject] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [currentProject] = await transaction
       .select({ status: project.status })
       .from(project)
       .where(eq(project.id, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (currentProject?.status !== "active") {
       return {
         kind: "conflict" as const,
@@ -78,7 +77,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       };
     }
 
-    const [approval] = transaction
+    const [approval] = await transaction
       .select()
       .from(purchaseApproval)
       .where(
@@ -87,38 +86,34 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           eq(purchaseApproval.projectId, projectId),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
     if (!approval) return { kind: "not_found" as const };
     if (approval.status !== "pending") {
       return { kind: "conflict" as const, error: "This purchase request is no longer pending." };
     }
     if (approval.expiresAt.getTime() <= now.getTime()) {
-      transaction
+      await transaction
         .update(purchaseApproval)
         .set({ status: "expired", updatedAt: now })
-        .where(eq(purchaseApproval.id, approvalId))
-        .run();
+        .where(eq(purchaseApproval.id, approvalId));
       return { kind: "conflict" as const, error: "This purchase request has expired." };
     }
 
-    const [policyRecord] = transaction
+    const [policyRecord] = await transaction
       .select()
       .from(projectSpendingPolicy)
       .where(eq(projectSpendingPolicy.projectId, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (
       !policyRecord ||
       policyRecord.version !== approval.policyVersion ||
       policyRecord.expiresAt.getTime() <= now.getTime()
     ) {
-      transaction
+      await transaction
         .update(purchaseApproval)
         .set({ status: "revoked", updatedAt: now })
-        .where(eq(purchaseApproval.id, approvalId))
-        .run();
-      transaction
+        .where(eq(purchaseApproval.id, approvalId));
+      await transaction
         .insert(activityEvent)
         .values({
           id: randomUUID(),
@@ -129,8 +124,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           entityId: approvalId,
           details: JSON.stringify({ reason: "policy_changed_or_expired" }),
           createdAt: now,
-        })
-        .run();
+        });
       return { kind: "conflict" as const, error: "The policy changed or expired; request a new approval." };
     }
 
@@ -140,7 +134,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         allowedCategories: decodeList(policyRecord.allowedCategories),
         allowedProviders: decodeList(policyRecord.allowedProviders),
       };
-      const reservations = transaction
+      const reservations = (await transaction
         .select({
           id: purchaseApproval.id,
           amountMinor: purchaseApproval.amountMinor,
@@ -153,8 +147,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
             inArray(purchaseApproval.status, ["pending", "approved"]),
             eq(purchaseApproval.policyVersion, policy.version),
           ),
-        )
-        .all()
+        ))
         .filter(
           (record) =>
             record.id !== approvalId &&
@@ -163,7 +156,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       const reservedMinor = reservations
         .reduce((sum, record) => sum + BigInt(record.amountMinor), BigInt(0))
         .toString();
-      const contributionRows = transaction
+      const contributionRows = await transaction
         .select({
           amountMinor: contribution.amountMinor,
           currency: contribution.currency,
@@ -178,8 +171,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           refundedAt: contribution.refundedAt,
         })
         .from(contribution)
-        .where(eq(contribution.projectId, projectId))
-        .all();
+        .where(eq(contribution.projectId, projectId));
       const verifiedMinor = summarizeContributions(contributionRows).verifiedAmountMinor;
       const decision = authorizePurchaseRequest(
         policy,
@@ -199,7 +191,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     }
 
     const nextStatus = parsed.data.decision;
-    transaction
+    await transaction
       .update(purchaseApproval)
       .set({
         status: nextStatus,
@@ -207,9 +199,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         approvedAt: nextStatus === "approved" ? now : null,
         updatedAt: now,
       })
-      .where(eq(purchaseApproval.id, approvalId))
-      .run();
-    transaction
+      .where(eq(purchaseApproval.id, approvalId));
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -224,8 +215,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           policyVersion: approval.policyVersion,
         }),
         createdAt: now,
-      })
-      .run();
+      });
     return { kind: "updated" as const, status: nextStatus };
   });
 

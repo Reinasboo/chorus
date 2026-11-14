@@ -118,13 +118,12 @@ export async function PUT(request: Request, { params }: RouteContext) {
   }
 
   const now = new Date();
-  const result = db.transaction((transaction) => {
-    const [existing] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [existing] = await transaction
       .select()
       .from(projectSpendingPolicy)
       .where(eq(projectSpendingPolicy.projectId, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     const version = (existing?.version ?? 0) + 1;
     const expiresAt = new Date(
       now.getTime() + parsed.data.expiresInDays * 24 * 60 * 60 * 1000,
@@ -143,16 +142,15 @@ export async function PUT(request: Request, { params }: RouteContext) {
     };
 
     if (existing) {
-      transaction
+      await transaction
         .update(projectSpendingPolicy)
         .set(policy)
-        .where(eq(projectSpendingPolicy.projectId, projectId))
-        .run();
+        .where(eq(projectSpendingPolicy.projectId, projectId));
     } else {
-      transaction.insert(projectSpendingPolicy).values(policy).run();
+      await transaction.insert(projectSpendingPolicy).values(policy);
     }
 
-    transaction
+    await transaction
       .update(purchaseApproval)
       .set({ status: "revoked", updatedAt: now })
       .where(
@@ -160,9 +158,8 @@ export async function PUT(request: Request, { params }: RouteContext) {
           eq(purchaseApproval.projectId, projectId),
           inArray(purchaseApproval.status, ["pending", "approved"]),
         ),
-      )
-      .run();
-    transaction
+      );
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -173,8 +170,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
         entityId: projectId,
         details: JSON.stringify({ version, expiresAt: expiresAt.toISOString() }),
         createdAt: now,
-      })
-      .run();
+      });
 
     return policy;
   });

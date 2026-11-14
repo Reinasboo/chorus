@@ -119,13 +119,12 @@ export async function POST(request: Request, { params }: RouteContext) {
     );
   }
 
-  const result = await db.transaction((transaction) => {
-    const [currentChallenge] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [currentChallenge] = await transaction
       .select()
       .from(nearWalletChallenge)
       .where(eq(nearWalletChallenge.id, challenge.id))
-      .limit(1)
-      .all();
+      .limit(1);
     if (
       !currentChallenge ||
       currentChallenge.consumedAt ||
@@ -133,12 +132,11 @@ export async function POST(request: Request, { params }: RouteContext) {
     ) {
       return { kind: "conflict" as const };
     }
-    transaction
+    await transaction
       .update(nearWalletChallenge)
       .set({ consumedAt: now })
-      .where(eq(nearWalletChallenge.id, challenge.id))
-      .run();
-    transaction
+      .where(eq(nearWalletChallenge.id, challenge.id));
+    await transaction
       .update(project)
       .set({
         nearTreasuryAccount: challenge.accountId,
@@ -146,9 +144,8 @@ export async function POST(request: Request, { params }: RouteContext) {
         nearTreasuryVerifiedBy: session.user.id,
         updatedAt: now,
       })
-      .where(eq(project.id, projectId))
-      .run();
-    transaction
+      .where(eq(project.id, projectId));
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -162,8 +159,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           verification: "NEP-413",
         }),
         createdAt: now,
-      })
-      .run();
+      });
     return { kind: "verified" as const };
   });
 

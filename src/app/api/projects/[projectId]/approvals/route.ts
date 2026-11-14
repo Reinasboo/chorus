@@ -152,13 +152,12 @@ export async function POST(request: Request, { params }: RouteContext) {
     category: parsed.data.category.toLowerCase(),
     providerId: parsed.data.providerId.toLowerCase(),
   };
-  const result = db.transaction((transaction) => {
-    const [currentProject] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [currentProject] = await transaction
       .select({ status: project.status })
       .from(project)
       .where(eq(project.id, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (currentProject?.status !== "active") {
       return {
         kind: "denied" as const,
@@ -166,7 +165,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       };
     }
 
-    const [existing] = transaction
+    const [existing] = await transaction
       .select()
       .from(purchaseApproval)
       .where(
@@ -176,8 +175,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           eq(purchaseApproval.idempotencyKey, parsed.data.idempotencyKey),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
     if (existing) {
       return {
         kind: "existing" as const,
@@ -192,12 +190,11 @@ export async function POST(request: Request, { params }: RouteContext) {
       };
     }
 
-    const [policyRecord] = transaction
+    const [policyRecord] = await transaction
       .select()
       .from(projectSpendingPolicy)
       .where(eq(projectSpendingPolicy.projectId, projectId))
-      .limit(1)
-      .all();
+      .limit(1);
     if (!policyRecord) {
       return { kind: "denied" as const, error: "A project spending policy is required." };
     }
@@ -207,7 +204,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       allowedProviders: decodeList(policyRecord.allowedProviders),
     };
 
-    const reservations = transaction
+    const reservations = (await transaction
       .select({
         amountMinor: purchaseApproval.amountMinor,
         expiresAt: purchaseApproval.expiresAt,
@@ -219,13 +216,12 @@ export async function POST(request: Request, { params }: RouteContext) {
           inArray(purchaseApproval.status, ["pending", "approved"]),
           eq(purchaseApproval.policyVersion, policy.version),
         ),
-      )
-      .all()
+      ))
       .filter((record) => record.expiresAt.getTime() > now.getTime());
     const reservedMinor = reservations
       .reduce((sum, record) => sum + BigInt(record.amountMinor), BigInt(0))
       .toString();
-    const contributionRows = transaction
+    const contributionRows = await transaction
       .select({
         amountMinor: contribution.amountMinor,
         currency: contribution.currency,
@@ -240,8 +236,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         refundedAt: contribution.refundedAt,
       })
       .from(contribution)
-      .where(eq(contribution.projectId, projectId))
-      .all();
+      .where(eq(contribution.projectId, projectId));
     const verifiedMinor = summarizeContributions(contributionRows).verifiedAmountMinor;
     const decision = authorizePurchaseRequest(
       policy,
@@ -276,8 +271,8 @@ export async function POST(request: Request, { params }: RouteContext) {
       createdAt: now,
       updatedAt: now,
     };
-    transaction.insert(purchaseApproval).values(record).run();
-    transaction
+    await transaction.insert(purchaseApproval).values(record);
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -294,8 +289,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           policyVersion: policy.version,
         }),
         createdAt: now,
-      })
-      .run();
+      });
     return { kind: "created" as const, record };
   });
 

@@ -56,8 +56,8 @@ export async function POST(request: Request, { params }: RouteContext) {
     `Account: ${parsed.data.accountId}`,
     `Challenge: ${challengeId}`,
   ].join("\n");
-  await db.transaction((transaction) => {
-    transaction
+  await db.transaction(async (transaction) => {
+    await transaction
       .delete(nearWalletChallenge)
       .where(
         and(
@@ -65,9 +65,8 @@ export async function POST(request: Request, { params }: RouteContext) {
           eq(nearWalletChallenge.userId, session.user.id),
           lt(nearWalletChallenge.expiresAt, now),
         ),
-      )
-      .run();
-    transaction
+      );
+    await transaction
       .insert(nearWalletChallenge)
       .values({
         id: challengeId,
@@ -77,8 +76,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         nonce,
         expiresAt: new Date(now.getTime() + 5 * 60_000),
         createdAt: now,
-      })
-      .run();
+      });
   });
 
   return NextResponse.json({

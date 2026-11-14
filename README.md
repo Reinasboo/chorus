@@ -14,7 +14,7 @@ Product direction and implementation progress:
 
 ## Current status
 
-Authentication, local project storage, and an idempotent contribution ledger are implemented. Project funding has a NEAR mainnet wallet-confirmed flow through NEAR Intents 1Click, but it has not been end-to-end tested with a real transfer. Settlement is currently based on quote-bound 1Click status, not independent on-chain reconciliation. A reported contribution is not evidence of funds or settlement.
+Authentication, Supabase Postgres project storage, and an idempotent contribution ledger are implemented. Authentication is provided by Better Auth; Supabase Auth is not enabled. Project funding has a NEAR mainnet wallet-confirmed flow through NEAR Intents 1Click, but it has not been end-to-end tested with a real transfer. Settlement is currently based on quote-bound 1Click status, not independent on-chain reconciliation. A reported contribution is not evidence of funds or settlement.
 Spending policies and exact-scope human approval records are available, but provider/offer references are administrator-entered and unverified. Approval records do not trigger execution or payment.
 Projects also support manually managed task statuses and reported outcomes. Task outcomes are not independently verified and do not imply agent execution or deliverable acceptance.
 
@@ -27,17 +27,19 @@ NEAR Intents has no testnet. The funding flow uses a contributor's connected wal
 
 ## Run locally
 
-From this directory, create a local environment file and replace the placeholder secret with a random value:
+From this directory, create a local environment file, set `DATABASE_URL` to the Supabase transaction-pooler connection for the `chorus_app` database role, and replace the placeholder Better Auth secret with a random value:
 
 ```powershell
 Copy-Item .env.example .env.local
 $secret = node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
 (Get-Content .env.local -Raw).Replace('replace-with-at-least-32-random-characters', $secret) | Set-Content -Encoding ascii .env.local
 npm ci
-npm run db:generate
+npx supabase link --project-ref rwbknkfpbwzcwqzdtshs
 npm run db:migrate
 npm run dev
 ```
+
+Before applying migrations to a new Supabase project, create a password-protected `chorus_app` Postgres role with `LOGIN` and `BYPASSRLS`. Keep its password only in `DATABASE_URL`; the migrations grant that role table access.
 
 Open [http://localhost:3000](http://localhost:3000).
 
@@ -70,7 +72,7 @@ this mainnet flow for tests that would submit a real transfer.
 
 - NEAR Intents funding: mainnet-only quote/deposit/status flow is implemented for wNEAR-to-USDC project contributions; the contributor explicitly confirms the wallet transaction. It is not end-to-end tested and 1Click status is not independently reconciled against NEAR RPC. See the [ADR](./docs/adr/0001-near-intents-mpp.md).
 - MPP service purchases: not implemented; no provider endpoint, agent payment, or outbound spending flow is configured.
-- Database and authentication: Better Auth + local SQLite are implemented for the prototype; production email verification and PostgreSQL migration remain outstanding.
+- Database and authentication: Better Auth stores users and sessions in Supabase Postgres. The app role needs table DML grants and `BYPASSRLS` because authorization is enforced in Chorus, not with Supabase Auth policies. Configure production email verification before relying on password sign-in.
 - Contributions: members can record self-reported USD amounts or initiate the wallet-confirmed NEAR Intents funding flow after a project administrator verifies a treasury. Quote-bound provider status is not independent settlement verification; real transfers have not been tested.
 - AI: the NEAR AI Cloud chat-completions adapter and reviewable plan flow are implemented; no API key or model is configured by default. Provider discovery remains unavailable.
 - Tasks: project administrators can create tasks and project members can update status and add reported outcomes; optional AI task categories and draft estimates are retained when accepted. No task invokes an agent or service provider, and estimates are not quotes.

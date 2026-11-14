@@ -59,8 +59,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Project budget is invalid." }, { status: 400 });
   }
 
-  await db.transaction((transaction) => {
-    transaction.insert(project).values({
+  await db.transaction(async (transaction) => {
+    await transaction.insert(project).values({
       id: projectId,
       name: parsed.data.name,
       objective: parsed.data.objective,
@@ -71,16 +71,16 @@ export async function POST(request: Request) {
       createdBy: session.user.id,
       createdAt: now,
       updatedAt: now,
-    }).run();
+    });
 
-    transaction.insert(projectMember).values({
+    await transaction.insert(projectMember).values({
       projectId,
       userId: session.user.id,
       role: "owner",
       joinedAt: now,
-    }).run();
+    });
 
-    transaction.insert(activityEvent).values({
+    await transaction.insert(activityEvent).values({
       id: randomUUID(),
       projectId,
       actorId: session.user.id,
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       entityId: projectId,
       details: JSON.stringify({ name: parsed.data.name }),
       createdAt: now,
-    }).run();
+    });
   });
 
   return NextResponse.json({ id: projectId }, { status: 201 });

@@ -53,7 +53,7 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     entityId: invitationId,
     details: JSON.stringify({}),
     createdAt: now,
-  }).run();
+  });
 
   return NextResponse.json({ id: invitationId, revokedAt: now });
 }

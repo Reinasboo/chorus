@@ -94,13 +94,12 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   if (parsed.data.status !== undefined) update.status = parsed.data.status;
 
   const now = new Date();
-  await db.transaction((transaction) => {
-    transaction
+  await db.transaction(async (transaction) => {
+    await transaction
       .update(project)
       .set(update)
-      .where(eq(project.id, projectId))
-      .run();
-    transaction
+      .where(eq(project.id, projectId));
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -111,8 +110,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         entityId: projectId,
         details: JSON.stringify({ fields: Object.keys(parsed.data) }),
         createdAt: now,
-      })
-      .run();
+      });
   });
 
   return NextResponse.json({ id: projectId });

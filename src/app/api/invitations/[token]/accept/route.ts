@@ -22,8 +22,8 @@ export async function POST(request: Request, { params }: RouteContext) {
   const tokenHash = createHash("sha256").update(token).digest("hex");
   const now = new Date();
 
-  const result = await db.transaction((transaction) => {
-    const [record] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [record] = await transaction
       .select({
         id: invitation.id,
         projectId: invitation.projectId,
@@ -38,12 +38,11 @@ export async function POST(request: Request, { params }: RouteContext) {
           gt(invitation.expiresAt, now),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
 
     if (!record) return { error: "Invitation is invalid or expired." as const };
 
-    const [membership] = transaction
+    const [membership] = await transaction
       .select({ userId: projectMember.userId })
       .from(projectMember)
       .where(
@@ -52,12 +51,11 @@ export async function POST(request: Request, { params }: RouteContext) {
           eq(projectMember.userId, session.user.id),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
 
     if (membership) return { error: "You are already a project member." as const };
 
-    const accepted = transaction
+    const [accepted] = await transaction
       .update(invitation)
       .set({ acceptedAt: now, acceptedBy: session.user.id })
       .where(
@@ -68,22 +66,20 @@ export async function POST(request: Request, { params }: RouteContext) {
           gt(invitation.expiresAt, now),
         ),
       )
-      .returning({ id: invitation.id })
-      .get();
+      .returning({ id: invitation.id });
 
     if (!accepted) return { error: "Invitation is invalid or expired." as const };
 
-    transaction
+    await transaction
       .insert(projectMember)
       .values({
         projectId: record.projectId,
         userId: session.user.id,
         role: record.role,
         joinedAt: now,
-      })
-      .run();
+      });
 
-    transaction
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -94,8 +90,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         entityId: session.user.id,
         details: JSON.stringify({ role: record.role }),
         createdAt: now,
-      })
-      .run();
+      });
 
     return { projectId: record.projectId };
   });

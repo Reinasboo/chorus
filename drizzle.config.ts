@@ -1,20 +1,10 @@
-import { mkdirSync } from "node:fs";
-import { resolve } from "node:path";
 import { defineConfig } from "drizzle-kit";
 
-const databaseUrl = process.env.DATABASE_URL ?? "file:./data/chorus.db";
-if (databaseUrl !== "file:./data/chorus.db") {
-  throw new Error("DATABASE_URL must be file:./data/chorus.db for this prototype.");
-}
-mkdirSync(resolve(process.cwd(), "data"), {
-  recursive: true,
-});
-
 export default defineConfig({
-  dialect: "sqlite",
+  dialect: "postgresql",
   schema: "./src/lib/db/schema.ts",
-  out: "./drizzle",
-  dbCredentials: {
-    url: databaseUrl,
-  },
+  out: "./supabase/migrations",
+  dbCredentials: process.env.DATABASE_URL
+    ? { url: process.env.DATABASE_URL }
+    : undefined,
 });

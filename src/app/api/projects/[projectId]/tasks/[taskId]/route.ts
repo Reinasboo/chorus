@@ -34,8 +34,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
   const { projectId, taskId } = await params;
   const now = new Date();
-  const result = db.transaction((transaction) => {
-    const [membership] = transaction
+  const result = await db.transaction(async (transaction) => {
+    const [membership] = await transaction
       .select({
         status: project.status,
         taskId: projectTask.id,
@@ -57,8 +57,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           eq(projectMember.userId, session.user.id),
         ),
       )
-      .limit(1)
-      .all();
+      .limit(1);
 
     if (!membership) return { kind: "not_found" as const };
     if (membership.status !== "active") return { kind: "inactive" as const };
@@ -71,7 +70,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       return { kind: "outcome_required" as const };
     }
 
-    transaction
+    await transaction
       .update(projectTask)
       .set({
         status: parsed.data.status,
@@ -81,9 +80,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       })
       .where(
         and(eq(projectTask.id, taskId), eq(projectTask.projectId, projectId)),
-      )
-      .run();
-    transaction
+      );
+    await transaction
       .insert(activityEvent)
       .values({
         id: randomUUID(),
@@ -103,8 +101,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
             parsed.data.reportedOutcome !== membership.reportedOutcome,
         }),
         createdAt: now,
-      })
-      .run();
+      });
     return { kind: "updated" as const, reportedOutcome };
   });
 
